@@ -50,9 +50,6 @@ npm run dev
 
 ## Compte admin par défaut (après le seed)
 
-- **E-mail** : `admin@inafrikawetrust.org`
-- **Mot de passe** : `password`
-
 ⚠️ À changer immédiatement en production.
 
 ## Prochains blocs à construire
