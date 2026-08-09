@@ -15,6 +15,10 @@ export default {
             type: String,
             default: '',
         },
+        minHeight: {
+            type: String,
+            default: '140px',
+        },
     },
     emits: ['update:modelValue'],
     data() {
@@ -119,7 +123,8 @@ export default {
         <!-- Zone d'édition -->
         <EditorContent
             :editor="editor"
-            class="prose prose-sm max-w-none px-3 py-2 text-sm text-gray-800 focus:outline-none min-h-[140px]"
+            class="prose prose-sm max-w-none px-3 py-2 text-sm text-gray-800 focus:outline-none"
+            :style="`min-height: ${minHeight}`"
         />
     </div>
 </template>
@@ -128,7 +133,7 @@ export default {
 /* Styles appliqués à l'éditeur Tiptap */
 .ProseMirror {
     outline: none;
-    min-height: 140px;
+    min-height: inherit;
 }
 .ProseMirror p { margin: 0 0 .5em; }
 .ProseMirror h2 { font-size: 1.1rem; font-weight: 600; margin: .75em 0 .35em; }

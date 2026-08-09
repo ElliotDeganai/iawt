@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FeaturedCountryController;
 use App\Http\Controllers\Admin\HomeContentController;
 use App\Http\Controllers\Admin\JourneyStepController;
+use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PlaceCategoryController;
 use App\Http\Controllers\Admin\RoleController;
@@ -59,4 +60,7 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::get('legal', [LegalController::class, 'edit'])->name('legal.edit');
+        Route::put('legal', [LegalController::class, 'update'])->name('legal.update');
     });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreFeaturedCountryRequest;
 use App\Http\Requests\Admin\UpdateFeaturedCountryRequest;
 use App\Models\FeaturedCountry;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,15 +41,15 @@ class FeaturedCountryController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('countries', 'public');
+            $data['cover_image'] = ImageService::store($request->file('cover_image'), 'countries');
         }
 
         if ($request->hasFile('flag_image')) {
-            $data['flag_image'] = $request->file('flag_image')->store('countries/flags', 'public');
+            $data['flag_image'] = ImageService::store($request->file('flag_image'), 'countries/flags', 800, 800);
         }
 
         if ($request->hasFile('map_image')) {
-            $data['map_image'] = $request->file('map_image')->store('countries/maps', 'public');
+            $data['map_image'] = ImageService::store($request->file('map_image'), 'countries/maps');
         }
 
         $country = FeaturedCountry::create($data);
@@ -76,7 +77,7 @@ class FeaturedCountryController extends Controller
             if ($country->cover_image) {
                 Storage::disk('public')->delete($country->cover_image);
             }
-            $data['cover_image'] = $request->file('cover_image')->store('countries', 'public');
+            $data['cover_image'] = ImageService::store($request->file('cover_image'), 'countries');
         }
 
         // Flag image
@@ -84,7 +85,7 @@ class FeaturedCountryController extends Controller
             if ($country->flag_image) {
                 Storage::disk('public')->delete($country->flag_image);
             }
-            $data['flag_image'] = $request->file('flag_image')->store('countries/flags', 'public');
+            $data['flag_image'] = ImageService::store($request->file('flag_image'), 'countries/flags', 800, 800);
         }
 
         // Map image — suppression explicite ou remplacement
@@ -97,7 +98,7 @@ class FeaturedCountryController extends Controller
             if ($country->map_image) {
                 Storage::disk('public')->delete($country->map_image);
             }
-            $data['map_image'] = $request->file('map_image')->store('countries/maps', 'public');
+            $data['map_image'] = ImageService::store($request->file('map_image'), 'countries/maps');
         }
 
         unset($data['remove_map_image']);

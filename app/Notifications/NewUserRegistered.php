@@ -25,9 +25,10 @@ class NewUserRegistered extends Notification
         return (new MailMessage)
             ->subject('Nouvelle inscription — ' . $this->newUser->first_name . ' ' . $this->newUser->last_name)
             ->greeting('Bonjour ' . $notifiable->first_name . ',')
-            ->line('Un nouvel utilisateur vient de s\'inscrire sur InAfrikaWeTrust.')
+            ->line('Un nouvel utilisateur vient de créer un compte sur InAfrikaWeTrust.')
             ->line('**Nom :** ' . $this->newUser->first_name . ' ' . $this->newUser->last_name)
             ->line('**E-mail :** ' . $this->newUser->email)
+            ->line('**Date :** ' . $this->newUser->created_at->format('d/m/Y à H:i'))
             ->action('Voir les utilisateurs', url('/admin/users'))
             ->line('Vous recevez cet e-mail car vous êtes administrateur de la plateforme.');
     }

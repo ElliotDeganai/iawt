@@ -48,6 +48,7 @@ export default {
                         { label: 'Utilisateurs', href: route('admin.users.index'), active: route().current('admin.users.*'), icon: 'users', show: this.permissions.includes('users.manage') },
                         { label: 'Rôles & permissions', href: route('admin.roles.index'), active: route().current('admin.roles.*'), icon: 'lock', show: this.permissions.includes('roles.manage') },
                         { label: 'Réglages', href: route('admin.settings.edit'), active: route().current('admin.settings.*'), icon: 'settings', show: this.permissions.includes('settings.manage') },
+                        { label: 'Pages légales', href: route('admin.legal.edit'), active: route().current('admin.legal.*'), icon: 'document', show: this.permissions.includes('settings.manage') },
                     ],
                 },
             ].map(section => ({
@@ -73,6 +74,7 @@ export default {
                 handshake:  'M7 11l4-4 4 4m-8 4l4-4 4 4',
                 quote:      'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
                 map:        'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7',
+                document:   'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
             };
             return icons[name] || '';
         },

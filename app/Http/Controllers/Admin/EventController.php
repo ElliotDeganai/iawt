@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEventRequest;
 use App\Http\Requests\Admin\UpdateEventRequest;
 use App\Models\Event;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +37,7 @@ class EventController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('events', 'public');
+            $data['image'] = ImageService::store($request->file('image'), 'events');
         }
 
         Event::create($data);
@@ -61,7 +62,7 @@ class EventController extends Controller
             $data['image'] = null;
         } elseif ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);
-            $data['image'] = $request->file('image')->store('events', 'public');
+            $data['image'] = ImageService::store($request->file('image'), 'events');
         }
 
         unset($data['remove_image']);

@@ -27,4 +27,11 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'contact@inafrikawetrust.org'),
         'name' => env('MAIL_FROM_NAME', 'InAfrikaWeTrust'),
     ],
+
+    'markdown' => [
+        'theme' => 'iawt',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
 ];

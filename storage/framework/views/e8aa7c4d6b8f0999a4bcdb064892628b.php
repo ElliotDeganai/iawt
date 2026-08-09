@@ -100,4 +100,4 @@
 <?php $component = $__componentOriginal3287929725b3f878740bf3f25881b9ff; ?>
 <?php unset($__componentOriginal3287929725b3f878740bf3f25881b9ff); ?>
 <?php endif; ?>
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/html/message.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/html/message.blade.php ENDPATH**/ ?>

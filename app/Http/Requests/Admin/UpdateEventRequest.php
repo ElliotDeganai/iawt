@@ -16,7 +16,7 @@ class UpdateEventRequest extends FormRequest
         return [
             'title'          => ['required', 'string', 'max:191'],
             'description'    => ['nullable', 'string'],
-            'image'          => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'image'          => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp'],
             'remove_image'   => ['boolean'],
             'url'            => ['nullable', 'url', 'max:500'],
             'date'           => ['required', 'date'],

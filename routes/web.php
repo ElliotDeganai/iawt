@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JourneyController;
+use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,6 +16,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/le-parcours', [JourneyController::class, 'index'])->name('journey.index');
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
 Route::get('/galerie', [GalleryController::class, 'index'])->name('gallery.index');
+Route::get('/mentions-legales', [LegalPageController::class, 'legalNotice'])->name('legal.notice');
+Route::get('/politique-de-confidentialite', [LegalPageController::class, 'privacyPolicy'])->name('legal.privacy');
 
 // Candidature (page publique + wizard protégé)
 Route::get('/candidater', [ApplicationController::class, 'index'])->name('application.index');

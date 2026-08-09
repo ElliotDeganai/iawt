@@ -135,8 +135,14 @@ export default {
             <slot />
         </main>
 
-        <footer class="border-t border-primary-800 bg-primary-900 py-6 text-center text-sm text-primary-200">
-            © {{ new Date().getFullYear() }} {{ $page.props.settings?.site_name || 'InAfrikaWeTrust' }} — Tous droits réservés.
+        <footer class="border-t border-primary-800 bg-primary-900 px-4 py-8 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+                <p class="text-sm text-primary-300">© {{ new Date().getFullYear() }} {{ $page.props.siteSettings?.name || 'InAfrikaWeTrust' }} — Tous droits réservés.</p>
+                <div class="flex items-center gap-4">
+                    <Link :href="route('legal.notice')" class="text-xs text-primary-400 hover:text-primary-200">Mentions légales</Link>
+                    <Link :href="route('legal.privacy')" class="text-xs text-primary-400 hover:text-primary-200">Politique de confidentialité</Link>
+                </div>
+            </div>
         </footer>
     </div>
 </template>

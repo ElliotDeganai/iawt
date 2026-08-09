@@ -10,11 +10,10 @@ export default {
     components: { AdminLayout, InputLabel, InputError, TextInput, PrimaryButton, Head },
     props: {
         settings: Object,
-        logo: String,
     },
     data() {
         return {
-            logoPreview: this.logo,
+            logoPreview: this.settings.logo || null,
             form: useForm({
                 site_name: this.settings.site_name,
                 tagline: this.settings.tagline,
@@ -25,18 +24,15 @@ export default {
         };
     },
     methods: {
-        onLogoChange(event) {
-            const file = event.target.files[0];
+        onLogoChange(e) {
+            const file = e.target.files[0];
             this.form.logo = file;
             if (file) this.logoPreview = URL.createObjectURL(file);
-            console.log(this.form);
         },
         submit() {
-                    this.form
-                        .transform((data) => ({ ...data, _method: 'put' }))
-                        .post(route('admin.settings.update'), {
-                            onSuccess: () => (this.form.logo = null),
-                        });
+            this.form
+                .transform((data) => ({ ...data, _method: 'put' }))
+                .post(route('admin.settings.update'), { forceFormData: true });
         },
     },
 };
@@ -51,15 +47,22 @@ export default {
         </template>
 
         <form class="max-w-2xl bg-white rounded-lg shadow p-6 space-y-4" enctype="multipart/form-data" @submit.prevent="submit">
-            <input type="hidden" name="_method" value="PUT" />
-
+            <!-- Logo -->
             <div>
                 <InputLabel value="Logo du site" />
                 <div class="mt-2 flex items-center gap-4">
-                    <img :src="logoPreview" class="h-16 w-16 rounded-full border border-gray-200 object-cover" />
-                    <input type="file" accept=".svg,.png,.jpg,.jpeg,.webp" class="text-sm" @change="onLogoChange" />
+                    <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+                        <img v-if="logoPreview" :src="logoPreview" class="h-full w-full object-contain p-1" alt="Logo" />
+                        <span v-else class="text-xs text-gray-400">Aucun</span>
+                    </div>
+                    <div>
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 hover:bg-gray-50">
+                            Changer le logo
+                            <input type="file" accept=".svg,.png,.jpg,.jpeg,.webp" class="hidden" @change="onLogoChange" />
+                        </label>
+                        <p class="mt-1 text-xs text-gray-400">SVG, PNG, JPG ou WebP</p>
+                    </div>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">SVG recommandé (utilisé aussi comme icône d'onglet du navigateur). 1 Mo max.</p>
                 <InputError class="mt-2" :message="form.errors.logo" />
             </div>
 

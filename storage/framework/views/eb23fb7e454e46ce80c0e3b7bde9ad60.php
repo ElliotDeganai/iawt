@@ -13,14 +13,14 @@
 <?php unset($__defined_vars); ?>
 <tr>
 <td class="header">
-<a href="<?php echo e($url); ?>" style="display: inline-block;">
-<?php if(trim($slot) === 'Laravel'): ?>
-<img src="https://laravel.com/img/notification-logo.png" class="logo" alt="Laravel Logo">
-<?php else: ?>
+<a href="<?php echo e($url); ?>" style="display:inline-block;">
+<?php
+    $logo = \App\Models\Setting::get('logo', '/images/logo-default.svg');
+    $logoUrl = str_starts_with($logo, 'http') ? $logo : url($logo);
+?>
+<img src="<?php echo e($logoUrl); ?>" alt="" width="36" height="36" style="width:36px;height:36px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">
 <?php echo e($slot); ?>
 
-<?php endif; ?>
 </a>
 </td>
-</tr>
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/html/header.blade.php ENDPATH**/ ?>
+</tr><?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/html/header.blade.php ENDPATH**/ ?>

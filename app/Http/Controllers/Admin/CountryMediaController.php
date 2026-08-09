@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CountryMedia;
 use App\Models\FeaturedCountry;
+use App\Services\ImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,14 +26,14 @@ class CountryMediaController extends Controller
     {
         $request->validate([
             'files' => ['required', 'array', 'max:20'],
-            'files.*' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:8192'],
+            'files.*' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif'],
         ]);
 
         $position = $country->media()->max('position') ?? 0;
 
         foreach ($request->file('files') as $file) {
             $position++;
-            $path = $file->store("countries/{$country->slug}/gallery", 'public');
+            $path = ImageService::store($file, "countries/{$country->slug}/gallery");
             $country->media()->create([
                 'type' => 'photo',
                 'path' => $path,

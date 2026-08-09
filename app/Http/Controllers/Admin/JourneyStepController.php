@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreJourneyStepRequest;
 use App\Http\Requests\Admin\UpdateJourneyStepRequest;
 use App\Models\JourneyStep;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +37,7 @@ class JourneyStepController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('journey-steps', 'public');
+            $data['image'] = ImageService::store($request->file('image'), 'journey-steps');
         }
 
         JourneyStep::create($data);
@@ -65,7 +66,7 @@ class JourneyStepController extends Controller
             if ($journeyStep->image) {
                 Storage::disk('public')->delete($journeyStep->image);
             }
-            $data['image'] = $request->file('image')->store('journey-steps', 'public');
+            $data['image'] = ImageService::store($request->file('image'), 'journey-steps');
         }
 
         unset($data['remove_image']);

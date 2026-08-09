@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\ImageService;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,8 +39,8 @@ class HomeContentController extends Controller
             'hero_subtitle' => ['nullable', 'string', 'max:500'],
             'program_title' => ['nullable', 'string', 'max:191'],
             'program_text' => ['nullable', 'string', 'max:1000'],
-            'hero_image' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
-            'program_image' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
+            'hero_image' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp'],
+            'program_image' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp'],
         ]);
 
         foreach (array_intersect_key($validated, array_flip($this->textKeys)) as $key => $value) {
@@ -52,7 +53,7 @@ class HomeContentController extends Controller
                 if ($current) {
                     Storage::disk('public')->delete(str_replace('/storage/', '', $current));
                 }
-                $path = $request->file($imageKey)->store('home', 'public');
+                $path = ImageService::store($request->file($imageKey), 'home');
                 Setting::set($imageKey, "/storage/{$path}");
             }
         }

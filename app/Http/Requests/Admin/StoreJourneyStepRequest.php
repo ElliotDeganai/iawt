@@ -17,7 +17,7 @@ class StoreJourneyStepRequest extends FormRequest
             'icon'        => ['required', 'string', 'max:50'],
             'label'       => ['required', 'string', 'max:191'],
             'description' => ['nullable', 'string'],
-            'image'       => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
+            'image'       => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp'],
             'position'    => ['required', 'integer', 'min:0'],
         ];
     }

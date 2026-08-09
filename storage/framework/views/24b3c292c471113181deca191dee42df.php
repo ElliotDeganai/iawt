@@ -59,4 +59,4 @@ width: 100% !important;
 </table>
 </body>
 </html>
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/html/layout.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/html/layout.blade.php ENDPATH**/ ?>

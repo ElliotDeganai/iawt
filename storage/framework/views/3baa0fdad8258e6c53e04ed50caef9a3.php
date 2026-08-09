@@ -11,4 +11,4 @@
 
 <?php echo strip_tags($footer ?? ''); ?>
 
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/text/layout.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/text/layout.blade.php ENDPATH**/ ?>

@@ -27,7 +27,7 @@ export default {
         </section>
 
         <!-- TIMELINE DES ÉTAPES -->
-        <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
 
             <div class="relative">
                 <!-- Ligne verticale centrale (desktop) -->
@@ -37,7 +37,7 @@ export default {
                     <div
                         v-for="(step, i) in steps"
                         :key="step.id"
-                        class="relative lg:flex lg:items-start"
+                        class="relative lg:flex lg:items-stretch"
                         :class="i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'"
                     >
                         <!-- Numéro central (desktop) -->
@@ -48,7 +48,7 @@ export default {
                         </div>
 
                         <!-- Contenu : texte -->
-                        <div class="lg:w-[calc(50%-3rem)]" :class="i % 2 === 0 ? 'lg:pr-10 lg:text-right' : 'lg:pl-10'">
+                        <div class="lg:w-[calc(50%-2.5rem)]" :class="i % 2 === 0 ? 'lg:pr-10 lg:text-right' : 'lg:pl-10'">
                             <!-- Numéro (mobile) -->
                             <div class="mb-3 flex items-center gap-3 lg:hidden">
                                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white">
@@ -80,26 +80,24 @@ export default {
                         </div>
 
                         <!-- Spacer central (desktop) -->
-                        <div class="hidden lg:block lg:w-24"></div>
+                        <div class="hidden lg:block lg:w-20"></div>
 
-                        <!-- Image d'illustration -->
-                        <div class="mt-5 lg:mt-0 lg:w-[calc(50%-3rem)]">
+                        <!-- Image d'illustration — s'adapte à la hauteur du texte -->
+                        <div class="mt-5 lg:mt-0 lg:w-[calc(50%-2.5rem)] lg:flex">
                             <div
                                 v-if="step.image"
-                                class="overflow-hidden rounded-2xl shadow-sm"
-                                :class="i % 2 === 0 ? 'lg:pl-10' : 'lg:pr-10'"
+                                class="w-full overflow-hidden rounded-2xl shadow-sm lg:flex"
                             >
                                 <img
                                     :src="`/storage/${step.image}`"
-                                    class="aspect-[4/3] w-full object-cover"
+                                    class="h-full w-full object-cover"
                                     :alt="step.label"
                                 />
                             </div>
                             <!-- Placeholder si pas d'image -->
                             <div
                                 v-else
-                                class="aspect-[4/3] w-full rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center"
-                                :class="i % 2 === 0 ? 'lg:pl-10' : 'lg:pr-10'"
+                                class="w-full rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center min-h-[160px]"
                             >
                                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-white/70 text-primary-400 shadow">
                                     <Icon :name="step.icon" class="h-8 w-8" />

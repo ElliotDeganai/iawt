@@ -6,4 +6,4 @@
 </td>
 </tr>
 </table>
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/html/subcopy.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/html/subcopy.blade.php ENDPATH**/ ?>

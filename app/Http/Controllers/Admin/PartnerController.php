@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Partner;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -29,13 +30,13 @@ class PartnerController extends Controller
     {
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:191'],
-            'logo'     => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+            'logo'     => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp'],
             'url'      => ['nullable', 'url', 'max:500'],
             'position' => ['required', 'integer', 'min:0'],
         ]);
 
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('partners', 'public');
+            $data['logo'] = ImageService::store($request->file('logo'), 'partners', 600, 600);
         }
 
         Partner::create($data);
@@ -47,7 +48,7 @@ class PartnerController extends Controller
     {
         $data = $request->validate([
             'name'         => ['required', 'string', 'max:191'],
-            'logo'         => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+            'logo'         => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp'],
             'remove_logo'  => ['boolean'],
             'url'          => ['nullable', 'url', 'max:500'],
             'position'     => ['required', 'integer', 'min:0'],
@@ -58,7 +59,7 @@ class PartnerController extends Controller
             $data['logo'] = null;
         } elseif ($request->hasFile('logo')) {
             if ($partner->logo) Storage::disk('public')->delete($partner->logo);
-            $data['logo'] = $request->file('logo')->store('partners', 'public');
+            $data['logo'] = ImageService::store($request->file('logo'), 'partners', 600, 600);
         }
 
         unset($data['remove_logo']);

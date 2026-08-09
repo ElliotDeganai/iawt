@@ -42,4 +42,4 @@
 </td>
 </tr>
 </table>
-<?php /**PATH C:\Users\LENOVO\Downloads\iawt\vendor\laravel\framework\src\Illuminate\Mail/resources/views/html/button.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\LENOVO\Downloads\iawt\resources\views/vendor/mail/html/button.blade.php ENDPATH**/ ?>
