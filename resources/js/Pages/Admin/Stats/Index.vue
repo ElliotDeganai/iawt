@@ -51,15 +51,15 @@ export default {
     <AdminLayout>
         <template #header><h1 class="text-lg font-semibold text-gray-800">Chiffres clés</h1></template>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="flex items-center justify-between border-b border-gray-100 p-4">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <div class="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-gray-500">Les chiffres affichés sur la page d'accueil.</p>
                 <button type="button" class="rounded-md bg-primary-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-primary-700" @click="showAdd = true">
                     Ajouter
                 </button>
             </div>
 
-            <table class="w-full text-sm">
+            <table class="min-w-[600px] w-full text-sm">
                 <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                     <tr>
                         <th class="px-4 py-3">Ordre</th>

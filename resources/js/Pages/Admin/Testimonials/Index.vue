@@ -76,7 +76,7 @@ export default {
         <template #header><h1 class="text-lg font-semibold text-gray-800">Témoignages</h1></template>
 
         <div class="bg-white rounded-lg shadow">
-            <div class="flex items-center justify-between border-b border-gray-100 p-4">
+            <div class="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-gray-500">Avis affichés sur la page d'accueil.</p>
                 <button type="button" class="rounded-md bg-primary-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-primary-700" @click="showAdd = true">
                     Ajouter
@@ -121,7 +121,7 @@ export default {
                     <!-- Mode édition inline -->
                     <template v-else>
                         <div class="space-y-3 rounded-lg border border-primary-100 bg-primary-50/30 p-4">
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Nom</label>
                                     <input v-model="editForm.author_name" class="w-full rounded-md border-gray-200 text-sm" />
@@ -135,7 +135,7 @@ export default {
                                 <label class="block text-xs font-medium text-gray-700 mb-1">Citation</label>
                                 <textarea v-model="editForm.quote" rows="3" class="w-full rounded-md border-gray-200 text-sm"></textarea>
                             </div>
-                            <div class="grid grid-cols-3 gap-3">
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Photo</label>
                                     <input type="file" accept="image/*" class="text-xs" @change="onEditPhoto" />
@@ -170,7 +170,7 @@ export default {
             <form class="p-6" @submit.prevent="submitAdd">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Ajouter un témoignage</h2>
                 <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nom de l'auteur</label>
                             <input v-model="addForm.author_name" class="w-full rounded-md border-gray-200 text-sm" autofocus />
@@ -186,7 +186,7 @@ export default {
                         <textarea v-model="addForm.quote" rows="4" class="w-full rounded-md border-gray-200 text-sm"></textarea>
                         <InputError class="mt-1" :message="addForm.errors.quote" />
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Photo <span class="text-gray-400 font-normal">(optionnel)</span></label>
                             <input type="file" accept="image/*" class="text-sm" @change="onAddPhoto" />

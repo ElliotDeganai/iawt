@@ -69,15 +69,15 @@ export default {
             <div class="mx-auto max-w-4xl">
                 <p class="mb-1 text-[10px] font-medium uppercase tracking-widest text-gold-400">Mon espace candidat</p>
 
-                <div class="flex items-start justify-between gap-4">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div class="flex items-center gap-4">
-                        <img v-if="user.avatar" :src="`/storage/${user.avatar}`" class="h-14 w-14 rounded-full object-cover border-2 border-white/20" alt="" />
-                        <span v-else class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 text-xl font-semibold text-white uppercase">
+                        <img v-if="user.avatar" :src="`/storage/${user.avatar}`" class="h-12 w-12 rounded-full object-cover border-2 border-white/20 sm:h-14 sm:w-14" alt="" />
+                        <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-lg font-semibold text-white uppercase sm:h-14 sm:w-14 sm:text-xl">
                             {{ user.first_name?.[0] }}{{ user.last_name?.[0] }}
                         </span>
                         <div>
-                            <h1 class="font-serif text-2xl font-normal text-white">{{ user.first_name }} {{ user.last_name }}</h1>
-                            <p class="mt-0.5 text-sm text-primary-200">{{ user.email }}</p>
+                            <h1 class="font-serif text-xl font-normal text-white sm:text-2xl">{{ user.first_name }} {{ user.last_name }}</h1>
+                            <p class="mt-0.5 text-xs text-primary-200 sm:text-sm">{{ user.email }}</p>
                         </div>
                     </div>
                     <span

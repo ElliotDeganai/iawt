@@ -78,6 +78,8 @@ class FeaturedCountryController extends Controller
                 Storage::disk('public')->delete($country->cover_image);
             }
             $data['cover_image'] = ImageService::store($request->file('cover_image'), 'countries');
+        } else {
+            unset($data['cover_image']);
         }
 
         // Flag image
@@ -86,6 +88,8 @@ class FeaturedCountryController extends Controller
                 Storage::disk('public')->delete($country->flag_image);
             }
             $data['flag_image'] = ImageService::store($request->file('flag_image'), 'countries/flags', 800, 800);
+        } else {
+            unset($data['flag_image']);
         }
 
         // Map image — suppression explicite ou remplacement
@@ -99,6 +103,8 @@ class FeaturedCountryController extends Controller
                 Storage::disk('public')->delete($country->map_image);
             }
             $data['map_image'] = ImageService::store($request->file('map_image'), 'countries/maps');
+        } else {
+            unset($data['map_image']);
         }
 
         unset($data['remove_map_image']);

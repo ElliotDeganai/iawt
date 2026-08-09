@@ -112,11 +112,40 @@ export default {
         removeAgency(i) {
             this.form.tourism_agencies.splice(i, 1);
         },
-        addPlace(category) {
-            this.form.country_places[category].push({ name: '', description: '', link: '' });
+        addPlace(categoryId) {
+            if (!this.form.country_places[categoryId]) {
+                this.form.country_places[categoryId] = [];
+            }
+            this.form.country_places[categoryId].push({ name: '', description: '', link: '' });
         },
-        removePlace(category, i) {
-            this.form.country_places[category].splice(i, 1);
+        removePlace(categoryId, i) {
+            this.form.country_places[categoryId].splice(i, 1);
+            if (!this.form.country_places[categoryId].length) {
+                delete this.form.country_places[categoryId];
+            }
+        },
+        addCategorySection() {
+            if (!this.newCategoryId) return;
+            if (!this.form.country_places[this.newCategoryId]) {
+                this.form.country_places[this.newCategoryId] = [];
+            }
+            this.form.country_places[this.newCategoryId].push({ name: '', description: '', link: '' });
+            this.newCategoryId = '';
+        },
+        removeCategorySection(categoryId) {
+            delete this.form.country_places[categoryId];
+        },
+        categoryName(id) {
+            return this.placeCategories[id]?.name ?? '';
+        },
+        usedCategoryIds() {
+            return Object.keys(this.form.country_places).map(Number);
+        },
+        availableCategories() {
+            const used = this.usedCategoryIds();
+            return Object.entries(this.placeCategories)
+                .filter(([id]) => !used.includes(Number(id)))
+                .map(([id, cat]) => ({ id: Number(id), name: cat.name }));
         },
         submit() {
             this.form

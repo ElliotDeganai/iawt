@@ -48,9 +48,9 @@ export default {
             <h1 class="text-lg font-semibold text-gray-800">Candidatures</h1>
         </template>
 
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
             <!-- Filtres -->
-            <div class="flex flex-wrap items-center gap-3 border-b border-gray-100 p-4">
+            <div class="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <input
                     v-model="search"
                     type="text"
@@ -69,7 +69,7 @@ export default {
             </div>
 
             <!-- Tableau -->
-            <table class="w-full text-sm">
+            <table class="min-w-[600px] w-full text-sm">
                 <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                     <tr>
                         <th class="px-4 py-3">Candidat</th>

@@ -96,13 +96,13 @@ export default {
     <PublicLayout>
         <!-- HERO -->
         <section class="bg-primary-800 px-4 py-10 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-7xl">
+            <div class="mx-auto max-w-5xl">
                 <p class="mb-1 text-[10px] font-medium uppercase tracking-widest text-gold-400">Programme</p>
                 <h1 class="font-serif text-3xl font-normal text-white">Agenda</h1>
             </div>
         </section>
 
-        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 
             <!-- Calendrier -->
             <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -140,7 +140,7 @@ export default {
                 <div class="grid grid-cols-7">
                     <div
                         v-for="(cell, i) in cells" :key="i"
-                        class="relative min-h-[88px] border-b border-r border-gray-100 p-1.5 last:border-r-0"
+                        class="relative min-h-[60px] border-b border-r border-gray-100 p-1 last:border-r-0 sm:min-h-[88px] sm:p-1.5"
                         :class="[
                             !cell.current ? 'bg-gray-50/60' : '',
                             (i + 1) % 7 === 0 ? 'border-r-0' : '',

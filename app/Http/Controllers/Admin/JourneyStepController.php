@@ -67,6 +67,8 @@ class JourneyStepController extends Controller
                 Storage::disk('public')->delete($journeyStep->image);
             }
             $data['image'] = ImageService::store($request->file('image'), 'journey-steps');
+        } else {
+            unset($data['image']);
         }
 
         unset($data['remove_image']);

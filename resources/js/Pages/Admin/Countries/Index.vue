@@ -48,14 +48,14 @@ export default {
             et vers lequel pointe le lien « Le pays à l'honneur » du menu.
         </p>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b border-gray-100 flex justify-end">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <div class="p-4 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <Link :href="route('admin.countries.create')" class="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-primary-700">
                     Ajouter un pays
                 </Link>
             </div>
 
-            <table class="w-full text-sm">
+            <table class="min-w-[600px] w-full text-sm">
                 <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                     <tr>
                         <th class="px-4 py-3">À l'honneur</th>

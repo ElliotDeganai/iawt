@@ -3,6 +3,14 @@ import { Link } from '@inertiajs/vue3';
 
 export default {
     components: { Link },
+    data() {
+        return { sidebarOpen: false };
+    },
+    watch: {
+        '$page.url'() {
+            this.sidebarOpen = false;
+        },
+    },
     computed: {
         user() {
             return this.$page.props.auth.user;
@@ -84,7 +92,18 @@ export default {
 
 <template>
     <div class="min-h-screen bg-cream flex">
-        <aside class="w-64 shrink-0 bg-primary-800 text-white flex flex-col">
+        <!-- Overlay mobile -->
+        <div
+            v-if="sidebarOpen"
+            class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            @click="sidebarOpen = false"
+        ></div>
+
+        <!-- Sidebar -->
+        <aside
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-primary-800 text-white flex flex-col transform transition-transform duration-200 lg:static lg:translate-x-0 lg:shrink-0"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        >
             <div class="px-5 py-4 border-b border-primary-700">
                 <Link :href="route('home')" class="text-lg font-serif font-bold">InAfrikaWeTrust</Link>
                 <p class="text-[10px] text-primary-300 mt-0.5 uppercase tracking-wider">Administration</p>
@@ -126,14 +145,23 @@ export default {
         </aside>
 
         <div class="flex-1 flex flex-col min-w-0">
-            <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                <div v-if="$slots.header">
-                    <slot name="header" />
+            <header class="bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between sm:px-6">
+                <div class="flex items-center gap-3">
+                    <button
+                        type="button"
+                        class="flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 lg:hidden"
+                        @click="sidebarOpen = true"
+                    >
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <div v-if="$slots.header">
+                        <slot name="header" />
+                    </div>
                 </div>
-                <div class="text-sm text-gray-500">Connecté en tant que <span class="font-medium text-gray-700">{{ user.full_name }}</span></div>
+                <div class="hidden text-sm text-gray-500 sm:block">Connecté en tant que <span class="font-medium text-gray-700">{{ user.full_name }}</span></div>
             </header>
 
-            <main class="flex-1 p-6">
+            <main class="flex-1 p-4 sm:p-6">
                 <div
                     v-if="$page.props.flash.success"
                     class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700"

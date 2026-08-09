@@ -60,6 +60,8 @@ class PartnerController extends Controller
         } elseif ($request->hasFile('logo')) {
             if ($partner->logo) Storage::disk('public')->delete($partner->logo);
             $data['logo'] = ImageService::store($request->file('logo'), 'partners', 600, 600);
+        } else {
+            unset($data['logo']);
         }
 
         unset($data['remove_logo']);

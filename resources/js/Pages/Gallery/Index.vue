@@ -81,9 +81,23 @@ export default {
 
         <!-- Layout principal -->
         <div v-else class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+
+            <!-- Sélecteur mobile -->
+            <div class="mb-4 lg:hidden">
+                <select
+                    class="w-full rounded-lg border-gray-200 text-sm"
+                    :value="activeCountry ?? countries[0]?.slug"
+                    @change="selectCountry($event.target.value)"
+                >
+                    <option v-for="c in countries" :key="c.slug" :value="c.slug">
+                        {{ c.name }} ({{ c.media.length }})
+                    </option>
+                </select>
+            </div>
+
             <div class="flex gap-6 items-start">
 
-                <!-- Sidebar pays -->
+                <!-- Sidebar pays (desktop) -->
                 <nav class="hidden w-52 shrink-0 lg:block">
                     <p class="mb-3 text-[10px] font-medium uppercase tracking-widest text-gray-400">Pays</p>
                     <ul class="space-y-1">
@@ -109,32 +123,19 @@ export default {
                     </ul>
                 </nav>
 
-                <!-- Sélecteur mobile -->
-                <div class="mb-4 lg:hidden w-full">
-                    <select
-                        class="w-full rounded-lg border-gray-200 text-sm"
-                        :value="activeCountry ?? countries[0]?.slug"
-                        @change="selectCountry($event.target.value)"
-                    >
-                        <option v-for="c in countries" :key="c.slug" :value="c.slug">
-                            {{ c.name }} ({{ c.media.length }})
-                        </option>
-                    </select>
-                </div>
-
                 <!-- Contenu pays actif -->
                 <div class="min-w-0 flex-1">
                     <template v-if="visibleCountry">
                         <!-- En-tête pays -->
-                        <div class="mb-5 flex items-center gap-3">
+                        <div class="mb-5 flex flex-wrap items-center gap-3">
                             <span
                                 v-if="visibleCountry.flag_code"
                                 :class="`fi fi-${visibleCountry.flag_code}`"
-                                style="width:2.5rem;height:1.625rem;border-radius:3px;display:inline-block;flex-shrink:0"
+                                style="width:2rem;height:1.3rem;border-radius:3px;display:inline-block;flex-shrink:0"
                             ></span>
                             <span v-else class="text-2xl">{{ visibleCountry.flag_emoji }}</span>
-                            <div>
-                                <h2 class="font-serif text-xl font-normal text-gray-900">{{ visibleCountry.name }}</h2>
+                            <div class="min-w-0">
+                                <h2 class="font-serif text-lg font-normal text-gray-900 sm:text-xl">{{ visibleCountry.name }}</h2>
                                 <p v-if="visibleCountry.tags" class="text-xs text-gray-500">{{ visibleCountry.tags }}</p>
                             </div>
                             <Link

@@ -42,7 +42,15 @@ export default {
     },
     computed: {
         a() { return this.application; },
-        user() { return this.application.user; },
+        user() {
+            return this.application.user || {
+                first_name: 'Utilisateur',
+                last_name: 'supprimé',
+                email: '—',
+                avatar: null,
+            };
+        },
+        userDeleted() { return !this.application.user; },
         statusConf() { return STATUS_CONFIG[this.a.status] ?? STATUS_CONFIG.draft; },
         stageLabel() { return STAGE_LABELS[this.a.project_stage] ?? '—'; },
         currentStatusLabel() { return STATUS_LABELS[this.a.current_status] ?? '—'; },
@@ -100,9 +108,13 @@ export default {
 
         <!-- Header candidat -->
         <div class="mb-6 overflow-hidden rounded-xl bg-primary-800">
+            <!-- Alerte user supprimé -->
+            <div v-if="userDeleted" class="bg-red-600 px-6 py-2 text-center text-xs font-medium text-white">
+                Cet utilisateur a été supprimé — la candidature est conservée en lecture seule.
+            </div>
             <div class="px-6 py-5">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex items-center gap-4">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-4">
                         <img v-if="user.avatar" :src="`/storage/${user.avatar}`" class="h-12 w-12 rounded-full object-cover border-2 border-white/20" alt="" />
                         <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-lg font-semibold text-white">
                             {{ user.first_name?.[0] }}{{ user.last_name?.[0] }}
@@ -120,7 +132,7 @@ export default {
                             {{ statusConf.label }}
                         </span>
                         <!-- Actions -->
-                        <template v-if="a.status === 'submitted'">
+                        <template v-if="a.status === 'submitted' && !userDeleted">
                             <button
                                 type="button"
                                 class="rounded-md bg-green-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
@@ -157,7 +169,7 @@ export default {
             </div>
 
             <!-- Tabs -->
-            <div class="flex gap-0 border-t border-white/10 px-6">
+            <div class="flex gap-0 border-t border-white/10 px-3 overflow-x-auto sm:px-6">
                 <button
                     v-for="tab in [{key:'profil',label:'Profil'},{key:'candidature',label:'Candidature'},{key:'parcours',label:'Parcours'},{key:'commentaires',label:'Commentaires'}]"
                     :key="tab.key"
@@ -173,7 +185,7 @@ export default {
         <div v-if="activeTab === 'profil'" class="space-y-4">
             <div class="rounded-xl border border-gray-100 bg-white p-5">
                 <p class="mb-4 text-[10px] font-semibold uppercase tracking-widest text-gold-600">Informations personnelles</p>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3">
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Nom complet</p><p class="mt-0.5 text-sm text-gray-800">{{ user.first_name }} {{ user.last_name }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Genre</p><p class="mt-0.5 text-sm text-gray-800">{{ genderLabel }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">E-mail compte</p><p class="mt-0.5 text-sm text-gray-800">{{ user.email }}</p></div>
@@ -221,7 +233,7 @@ export default {
             <!-- Étape 1 — Profil personnel -->
             <div class="rounded-xl border border-gray-100 bg-white p-5">
                 <p class="mb-4 text-[10px] font-semibold uppercase tracking-widest text-gold-600">Étape 1 — Profil personnel</p>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3">
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Genre</p><p class="mt-0.5 text-sm text-gray-800">{{ genderLabel }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Pays de résidence</p><p class="mt-0.5 text-sm text-gray-800">{{ a.country_of_residence || '—' }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Ville</p><p class="mt-0.5 text-sm text-gray-800">{{ a.city_of_residence || '—' }}</p></div>
@@ -241,7 +253,7 @@ export default {
                 <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Nom du projet</p><p class="mt-0.5 text-sm font-medium text-gray-900">{{ a.project_name || '—' }}</p></div>
                 <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Problème ciblé</p><p class="mt-1 text-sm text-gray-700 leading-relaxed">{{ a.project_problem || '—' }}</p></div>
                 <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Solution proposée</p><p class="mt-1 text-sm text-gray-700 leading-relaxed">{{ a.project_solution || '—' }}</p></div>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3">
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Secteur</p><p class="mt-0.5 text-sm text-gray-800">{{ a.project_sector || '—' }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Stade</p><p class="mt-0.5 text-sm text-gray-800">{{ stageLabel }}</p></div>
                     <div><p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">Porté</p><p class="mt-0.5 text-sm text-gray-800">{{ teamLabel }}</p></div>

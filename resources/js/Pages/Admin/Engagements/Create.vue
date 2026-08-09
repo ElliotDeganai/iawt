@@ -38,7 +38,7 @@ export default {
             <h1 class="text-lg font-semibold text-gray-800">Ajouter un engagement</h1>
         </template>
 
-        <form class="max-w-2xl bg-white rounded-lg shadow p-6 space-y-4" @submit.prevent="submit">
+        <form class="max-w-2xl w-full bg-white rounded-lg shadow p-6 space-y-4" @submit.prevent="submit">
             <div>
                 <InputLabel value="Icône" />
                 <div class="mt-2 flex flex-wrap gap-2">

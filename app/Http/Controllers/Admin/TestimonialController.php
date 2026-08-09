@@ -64,6 +64,8 @@ class TestimonialController extends Controller
         } elseif ($request->hasFile('author_photo')) {
             if ($testimonial->author_photo) Storage::disk('public')->delete($testimonial->author_photo);
             $data['author_photo'] = ImageService::store($request->file('author_photo'), 'testimonials', 800, 800);
+        } else {
+            unset($data['author_photo']);
         }
 
         unset($data['remove_photo']);

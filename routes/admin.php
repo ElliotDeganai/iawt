@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class)->except('show');
+        Route::put('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
         Route::resource('roles', RoleController::class)->except('show');
         Route::resource('countries', FeaturedCountryController::class)->except('show');
         Route::put('countries/{country}/set-current', [FeaturedCountryController::class, 'setCurrent'])->name('countries.set-current');

@@ -25,7 +25,7 @@ class ApplicationController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Application::with('user')
+        $query = Application::with(['user' => fn ($q) => $q->withTrashed()])
             ->orderByRaw("FIELD(status, 'submitted', 'accepted', 'rejected', 'draft')")
             ->orderByDesc('submitted_at');
 
@@ -56,7 +56,7 @@ class ApplicationController extends Controller
      */
     public function show(Application $application): Response
     {
-        $application->load(['user', 'comments.author']);
+        $application->load(['user' => fn ($q) => $q->withTrashed(), 'comments.author']);
 
         return Inertia::render('Admin/Applications/Show', [
             'application'  => $application,

@@ -46,7 +46,7 @@ export default {
             <h1 class="text-lg font-semibold text-gray-800">Réglages du site</h1>
         </template>
 
-        <form class="max-w-2xl bg-white rounded-lg shadow p-6 space-y-4" enctype="multipart/form-data" @submit.prevent="submit">
+        <form class="max-w-2xl w-full bg-white rounded-lg shadow p-6 space-y-4" enctype="multipart/form-data" @submit.prevent="submit">
             <!-- Logo -->
             <div>
                 <InputLabel value="Logo du site" />

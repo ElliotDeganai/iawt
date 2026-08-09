@@ -63,6 +63,8 @@ class EventController extends Controller
         } elseif ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);
             $data['image'] = ImageService::store($request->file('image'), 'events');
+        } else {
+            unset($data['image']);
         }
 
         unset($data['remove_image']);

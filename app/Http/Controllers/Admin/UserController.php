@@ -23,22 +23,28 @@ class UserController extends Controller
 
     public function index(Request $request): Response
     {
-        $users = User::query()
+        $query = User::query()
             ->with('role')
             ->when($request->search, fn ($q, $search) => $q->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             }))
-            ->when($request->role, fn ($q, $role) => $q->where('role_id', $role))
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            ->when($request->role, fn ($q, $role) => $q->where('role_id', $role));
+
+        // Inclure les supprimés si filtre actif
+        if ($request->trashed === 'only') {
+            $query->onlyTrashed();
+        } elseif ($request->trashed === 'with') {
+            $query->withTrashed();
+        }
+
+        $users = $query->latest()->paginate(15)->withQueryString();
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $users,
-            'roles' => Role::orderBy('name')->get(['id', 'name']),
-            'filters' => $request->only(['search', 'role']),
+            'users'   => $users,
+            'roles'   => Role::orderBy('name')->get(['id', 'name']),
+            'filters' => $request->only(['search', 'role', 'trashed']),
         ]);
     }
 
@@ -62,7 +68,7 @@ class UserController extends Controller
     public function edit(User $user): Response
     {
         return Inertia::render('Admin/Users/Edit', [
-            'user' => $user,
+            'user'  => $user,
             'roles' => Role::orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -71,7 +77,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        if (! empty($data['password'])) {
+        if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
@@ -88,8 +94,16 @@ class UserController extends Controller
             return Redirect::route('admin.users.index')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
-        $user->delete();
+        $user->delete(); // soft delete
 
-        return Redirect::route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès.');
+        return Redirect::route('admin.users.index')->with('success', 'Utilisateur désactivé.');
+    }
+
+    public function restore(int $id): RedirectResponse
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return Redirect::route('admin.users.index')->with('success', 'Utilisateur réactivé.');
     }
 }

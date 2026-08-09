@@ -35,7 +35,7 @@ export default {
             <h1 class="text-lg font-semibold text-gray-800">Pages légales</h1>
         </template>
 
-        <form class="max-w-4xl space-y-6" @submit.prevent="submit">
+        <form class="max-w-4xl w-full space-y-6" @submit.prevent="submit">
             <!-- Tabs -->
             <div class="flex gap-0 border-b border-gray-200">
                 <button
