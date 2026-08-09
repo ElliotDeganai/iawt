@@ -1,9 +1,17 @@
 #!/bin/bash
 set -e
 
-echo "🔄 Déploiement de InAfrikaWeTrust..."
+ENV="${1:-testing}"
 
-cd /var/www/iawt
+if [ "$ENV" = "production" ]; then
+    DIR="/var/www/iawt"
+else
+    DIR="/var/www/testing"
+fi
+
+echo "🔄 Déploiement de InAfrikaWeTrust ($ENV)..."
+
+cd "$DIR"
 
 echo "→ Récupération des derniers changements..."
 git pull origin main
@@ -30,4 +38,4 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "✅ Déploiement terminé !"
+echo "✅ Déploiement terminé ($ENV) !"
