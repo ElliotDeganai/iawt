@@ -14,6 +14,7 @@ export default {
     props: {
         applications: Array,
         filters: Object,
+        totalSteps: { type: Number, default: 8 },
     },
     data() {
         return {
@@ -84,7 +85,7 @@ export default {
                 <tbody class="divide-y divide-gray-100">
                     <tr v-for="a in applications" :key="a.id" class="hover:bg-gray-50">
                         <td class="px-4 py-3">
-                            <div class="flex items-center gap-2.5">
+                            <div v-if="a.user" class="flex items-center gap-2.5">
                                 <img v-if="a.user.avatar" :src="`/storage/${a.user.avatar}`" class="h-8 w-8 rounded-full object-cover" alt="" />
                                 <span v-else class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white">
                                     {{ initials(a.user) }}
@@ -94,6 +95,7 @@ export default {
                                     <p class="truncate text-xs text-gray-400">{{ a.user.email }}</p>
                                 </div>
                             </div>
+                            <span v-else class="text-xs text-gray-400">Utilisateur supprimé</span>
                         </td>
                         <td class="px-4 py-3 font-medium text-gray-700">{{ a.project_name || '—' }}</td>
                         <td class="px-4 py-3 text-gray-500">{{ a.project_sector || '—' }}</td>
@@ -104,7 +106,7 @@ export default {
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-500">
-                            <span v-if="a.status === 'accepted'">{{ a.journey_current_step }} / 7</span>
+                            <span v-if="a.status === 'accepted'">{{ a.journey_current_step }} / {{ totalSteps }}</span>
                             <span v-else class="text-gray-300">—</span>
                         </td>
                         <td class="px-4 py-3 text-right">

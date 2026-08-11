@@ -47,6 +47,7 @@ class ApplicationController extends Controller
         return Inertia::render('Admin/Applications/Index', [
             'applications' => $query->get(),
             'filters'      => $request->only('status', 'search'),
+            'totalSteps'   => JourneyStep::count(),
         ]);
     }
 
@@ -138,8 +139,12 @@ class ApplicationController extends Controller
             $application->update(['journey_current_step' => $nextStep]);
         }
 
+        $message = $step < 8
+            ? "Étape {$step} validée — l'étape {$nextStep} a été débloquée."
+            : "Étape {$step} validée — le parcours est terminé. Félicitations au candidat !";
+
         return Redirect::route('admin.applications.show', $application)
-            ->with('success', "Étape {$step} validée — l'étape {$nextStep} a été débloquée.");
+            ->with('success', $message);
     }
 
     public function reworkStep(Request $request, Application $application): RedirectResponse
