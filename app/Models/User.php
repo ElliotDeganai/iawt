@@ -79,4 +79,9 @@ class User extends Authenticatable
     {
         return $this->role?->slug === 'admin';
     }
+
+    public function application()
+    {
+        return $this->hasOne(\App\Models\Application::class);
+    }
 }

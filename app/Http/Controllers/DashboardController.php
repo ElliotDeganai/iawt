@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\JourneyResponse;
 use App\Models\JourneyStep;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -15,9 +16,14 @@ class DashboardController extends Controller
         $application = Application::where('user_id', Auth::id())->first();
         $steps       = JourneyStep::orderBy('position')->get();
 
+        $journeyResponses = JourneyResponse::where('user_id', Auth::id())
+            ->get()
+            ->keyBy('step_number');
+
         return Inertia::render('Dashboard', [
-            'application' => $application,
-            'steps'       => $steps,
+            'application'      => $application,
+            'steps'            => $steps,
+            'journeyResponses' => $journeyResponses,
         ]);
     }
 }

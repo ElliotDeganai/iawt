@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::put('applications/{application}/accept', [ApplicationController::class, 'accept'])->name('applications.accept');
         Route::put('applications/{application}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
         Route::put('applications/{application}/unlock-step', [ApplicationController::class, 'unlockStep'])->name('applications.unlock-step');
+        Route::put('applications/{application}/validate-step', [ApplicationController::class, 'validateStep'])->name('applications.validate-step');
+        Route::put('applications/{application}/rework-step', [ApplicationController::class, 'reworkStep'])->name('applications.rework-step');
         Route::post('applications/{application}/comment', [ApplicationController::class, 'comment'])->name('applications.comment');
 
         Route::resource('events', EventController::class)->except('show');

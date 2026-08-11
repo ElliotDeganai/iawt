@@ -31,11 +31,15 @@ export default {
     props: {
         application: Object,
         journeySteps: Array,
+        journeyResponses: Object,
     },
     data() {
         return {
             activeTab: 'profil',
+            expandedStep: null,
             showRejectModal: false,
+            reworkStep: null,
+            reworkForm: useForm({ step: null, reason: '' }),
             rejectForm: useForm({ rejection_reason: '' }),
             commentForm: useForm({ body: '' }),
         };
@@ -80,11 +84,70 @@ export default {
         unlockStep(step) {
             router.put(route('admin.applications.unlock-step', this.a.id), { step }, { preserveScroll: true });
         },
+        validateStep(step) {
+            router.put(route('admin.applications.validate-step', this.a.id), { step }, { preserveScroll: true });
+        },
+        openReworkModal(step) {
+            this.reworkStep = step;
+            this.reworkForm.step = step;
+            this.reworkForm.reason = '';
+        },
+        submitRework() {
+            this.reworkForm.put(route('admin.applications.rework-step', this.a.id), {
+                preserveScroll: true,
+                onSuccess: () => { this.reworkStep = null; this.reworkForm.reset(); },
+            });
+        },
         submitComment() {
             this.commentForm.post(route('admin.applications.comment', this.a.id), {
                 preserveScroll: true,
                 onSuccess: () => this.commentForm.reset(),
             });
+        },
+        toggleStepExpand(num) {
+            this.expandedStep = this.expandedStep === num ? null : num;
+        },
+        hasStepResponse(num) {
+            return !!this.journeyResponses?.[num];
+        },
+        stepResponseStatus(num) {
+            const r = this.journeyResponses?.[num];
+            if (!r) return 'todo';
+            if (r.completed_at) return 'completed';
+            return 'draft';
+        },
+        getStepResponses(num) {
+            return this.journeyResponses?.[num]?.data || {};
+        },
+        formatFieldLabel(key) {
+            const labels = {
+                idea_origin: "Origine de l'idée", idea_origin_other: 'Autre origine',
+                who: 'Qui', what: 'Quoi', why: 'Pourquoi', how: 'Comment', where: 'Où',
+                alignment_energy: 'Alignement énergétique', alignment_skills: 'Compétences', alignment_lifestyle: 'Mode de vie',
+                project_name: 'Nom du projet', project_zone: 'Zone géographique', project_description: 'Description',
+                problem: 'Problème', problem_frequency: 'Fréquence', problem_consequences: 'Conséquences',
+                problem_source: 'Source', people_consulted: 'Personnes consultées', key_quotes: 'Citations',
+                target_main: 'Cible principale', target_age: 'Âge/situation', target_constraints: 'Contraintes',
+                target_segments: 'Segments', target_priority: 'Priorité',
+                market_scope: 'Portée marché', market_trend: 'Tendance',
+                competitors: 'Concurrents', alt_solutions: 'Alternatives',
+                swot_strengths: 'Forces', swot_weaknesses: 'Faiblesses', swot_opportunities: 'Opportunités', swot_threats: 'Menaces',
+                decision: 'Décision',
+                partners: 'Partenaires clés', activities: 'Activités clés', value: 'Proposition de valeur',
+                relationship: 'Relation client', segments: 'Segments', resources: 'Ressources', channels: 'Canaux',
+                costs: 'Structure de coûts', revenue: 'Sources de revenus',
+                needs: 'Besoins', sources: 'Ressources financières',
+                country: 'Pays', city: 'Ville', current_status: 'Statut', experience: 'Expérience',
+                sector: 'Secteur', project_type: 'Type de projet', founders_count: 'Fondateurs',
+                chosen_form: 'Forme juridique', reason: 'Justification',
+                host_company: "Entreprise d'accueil", activity_tested: 'Activité testée',
+                activities_done: 'Activités réalisées', sales_count: 'Ventes', revenue: 'CA',
+                expenses: 'Dépenses', result: 'Résultat',
+                worked_well: 'Ce qui a fonctionné', was_difficult: 'Difficultés', must_change: 'À changer',
+                project_status: 'Bilan', support_need: 'Besoin accompagnement',
+                checklist: 'Checklist', parcours: 'Type de parcours',
+            };
+            return labels[key] || key.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
         },
         formatDate(d) {
             if (!d) return '—';
@@ -312,46 +375,117 @@ export default {
                 <p class="text-sm text-amber-700">Le parcours est verrouillé — la candidature doit être acceptée pour débloquer les étapes.</p>
             </div>
 
-            <div class="rounded-xl border border-gray-100 bg-white overflow-hidden">
-                <div class="divide-y divide-gray-50">
+            <div class="space-y-3">
+                <div
+                    v-for="(step, i) in journeySteps"
+                    :key="step.id"
+                    class="rounded-xl border border-gray-100 bg-white overflow-hidden"
+                >
+                    <!-- En-tête étape -->
                     <div
-                        v-for="(step, i) in journeySteps"
-                        :key="step.id"
-                        class="flex items-center gap-4 px-5 py-4"
+                        class="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-gray-50"
+                        @click="toggleStepExpand(i + 1)"
                     >
-                        <!-- Numéro -->
                         <span
                             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                            :class="[
-                                i + 1 <= a.journey_current_step ? 'bg-green-100 text-green-700' : 'border border-gray-200 bg-gray-50 text-gray-400',
-                            ]"
+                            :class="stepResponseStatus(i + 1) === 'completed' ? 'bg-green-100 text-green-700' : stepResponseStatus(i + 1) === 'draft' ? 'bg-gold-100 text-gold-700' : i + 1 <= a.journey_current_step ? 'bg-primary-100 text-primary-700' : 'border border-gray-200 bg-gray-50 text-gray-400'"
                         >
-                            <svg v-if="i + 1 <= a.journey_current_step" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                            <svg v-if="stepResponseStatus(i + 1) === 'completed'" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             <span v-else>{{ String(i + 1).padStart(2, '0') }}</span>
                         </span>
 
-                        <!-- Icône + label -->
                         <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" :class="i + 1 <= a.journey_current_step ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-300'">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" :class="i + 1 <= a.journey_current_step ? 'bg-primary-50 text-primary-700' : 'bg-gray-50 text-gray-300'">
                                 <Icon :name="step.icon" class="h-4 w-4" />
                             </span>
                             <p class="text-sm font-medium" :class="i + 1 <= a.journey_current_step ? 'text-gray-900' : 'text-gray-400'">{{ step.label }}</p>
                         </div>
 
-                        <!-- Statut / action -->
-                        <span v-if="i + 1 <= a.journey_current_step" class="rounded-full bg-green-50 px-2.5 py-0.5 text-[10px] font-medium text-green-700">Débloquée</span>
+                        <!-- Badge statut -->
+                        <span v-if="journeyResponses?.[i+1]?.validated_at" class="rounded-full bg-green-50 px-2.5 py-0.5 text-[10px] font-medium text-green-700">Validée ✓</span>
+                        <span v-else-if="stepResponseStatus(i + 1) === 'completed'" class="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-medium text-blue-700">Soumise</span>
+                        <span v-else-if="stepResponseStatus(i + 1) === 'draft'" class="rounded-full bg-gold-50 px-2.5 py-0.5 text-[10px] font-medium text-gold-700">En cours</span>
+                        <span v-else-if="i + 1 <= a.journey_current_step" class="rounded-full bg-gray-100 px-2.5 py-0.5 text-[10px] font-medium text-gray-500">Débloquée</span>
+
+                        <!-- Bouton valider (si soumise et pas encore validée) -->
                         <button
-                            v-else-if="a.status === 'accepted'"
+                            v-if="stepResponseStatus(i + 1) === 'completed' && !journeyResponses?.[i+1]?.validated_at && a.status === 'accepted'"
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
+                            @click.stop="validateStep(i + 1)"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Valider
+                        </button>
+
+                        <!-- Bouton retravailler (si soumise et pas encore validée) -->
+                        <button
+                            v-if="stepResponseStatus(i + 1) === 'completed' && !journeyResponses?.[i+1]?.validated_at && a.status === 'accepted'"
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-md bg-amber-500 px-3 py-1 text-xs font-medium text-white hover:bg-amber-600"
+                            @click.stop="openReworkModal(i + 1)"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            À retravailler
+                        </button>
+
+                        <!-- Bouton débloquer -->
+                        <button
+                            v-if="a.status === 'accepted' && i + 1 > a.journey_current_step"
                             type="button"
                             class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                            @click="unlockStep(i + 1)"
+                            @click.stop="unlockStep(i + 1)"
                         >
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             Débloquer
                         </button>
-                        <span v-else class="text-gray-300">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                        </span>
+
+                        <!-- Chevron -->
+                        <svg v-if="hasStepResponse(i + 1)" class="h-4 w-4 text-gray-400 transition" :class="expandedStep === (i + 1) ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+
+                    <!-- Réponses (dépliable) -->
+                    <div v-if="expandedStep === (i + 1) && hasStepResponse(i + 1)" class="border-t border-gray-100 bg-gray-50/50 px-5 py-4">
+                        <!-- Motif de retravail -->
+                        <div v-if="journeyResponses?.[i+1]?.rework_reason" class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                            <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-1">Motif de retravail</p>
+                            <p class="text-sm text-amber-800">{{ journeyResponses[i+1].rework_reason }}</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div v-for="(value, key) in getStepResponses(i + 1)" :key="key">
+                                <template v-if="value !== null && value !== '' && !(Array.isArray(value) && value.length === 0) && !(typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)">
+                                    <p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">{{ formatFieldLabel(key) }}</p>
+                                    <!-- Tableau comparatif (concurrents etc.) -->
+                                    <template v-if="Array.isArray(value) && value.length && typeof value[0] === 'object'">
+                                        <div v-for="(item, idx) in value" :key="idx" class="mt-1 mb-2 rounded-lg border border-gray-200 bg-white p-3">
+                                            <div class="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                                                <div v-for="(v, k) in item" :key="k">
+                                                    <span class="text-[10px] text-gray-400">{{ formatFieldLabel(k) }}</span>
+                                                    <p class="text-sm text-gray-700">{{ v || '—' }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <!-- Objet (besoins, sources, etc.) -->
+                                    <template v-else-if="typeof value === 'object' && !Array.isArray(value)">
+                                        <div class="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
+                                            <div v-for="(v, k) in value" :key="k" class="flex items-center gap-2">
+                                                <span class="text-xs text-gray-500">{{ formatFieldLabel(k) }} :</span>
+                                                <span class="text-sm text-gray-800">{{ typeof v === 'boolean' ? (v ? '✓' : '—') : (v || '—') }}</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <!-- Liste simple -->
+                                    <template v-else-if="Array.isArray(value)">
+                                        <p class="mt-0.5 text-sm text-gray-700">{{ value.join(', ') }}</p>
+                                    </template>
+                                    <!-- Valeur simple -->
+                                    <template v-else>
+                                        <p class="mt-0.5 text-sm text-gray-700">{{ value }}</p>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -395,6 +529,35 @@ export default {
             </div>
             <p v-else class="text-sm text-gray-400">Aucun commentaire pour le moment.</p>
         </div>
+
+        <!-- MODALE RETRAVAILLER -->
+        <Modal :show="reworkStep !== null" @close="reworkStep = null">
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900">Demander de retravailler l'étape {{ reworkStep }}</h2>
+                <p class="mt-1 text-sm text-gray-600">Le candidat sera invité à modifier et resoumettre cette étape. Expliquez ce qui doit être amélioré.</p>
+
+                <textarea
+                    v-model="reworkForm.reason"
+                    rows="4"
+                    class="mt-4 w-full rounded-lg border-gray-200 text-sm"
+                    placeholder="Ce qui doit être revu ou complété…"
+                    autofocus
+                ></textarea>
+                <p v-if="reworkForm.errors.reason" class="mt-1 text-xs text-red-600">{{ reworkForm.errors.reason }}</p>
+
+                <input type="hidden" :value="reworkStep" />
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50" @click="reworkStep = null">Annuler</button>
+                    <button
+                        type="button"
+                        :disabled="reworkForm.processing || !reworkForm.reason.trim()"
+                        class="rounded-md bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+                        @click="submitRework"
+                    >Demander la révision</button>
+                </div>
+            </div>
+        </Modal>
 
         <!-- MODALE DE REJET -->
         <Modal :show="showRejectModal" @close="showRejectModal = false">

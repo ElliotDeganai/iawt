@@ -4,21 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Application extends Model
 {
     protected $fillable = [
         'user_id', 'current_step', 'status', 'journey_current_step', 'rejection_reason',
-        // Étape 1
         'gender', 'country_of_residence', 'city_of_residence', 'postal_address',
         'personal_email', 'whatsapp_phone', 'has_internet_access', 'current_status',
         'university_name', 'university_doc', 'weekly_hours',
-        // Étape 2
         'project_name', 'project_problem', 'project_solution', 'project_sector',
         'project_competition', 'project_pitch', 'project_stage', 'team_project',
-        // Étape 3
         'cv_file', 'linkedin_url',
-        // Étape 4
         'previous_program', 'support_needs', 'heard_about_us',
         'consent_data', 'consent_image', 'submitted_at',
     ];
@@ -43,8 +40,8 @@ class Application extends Model
         return $this->status !== 'draft';
     }
 
-    public function comments()
+    public function comments(): HasMany
     {
-        return $this->hasMany(\App\Models\AdminComment::class)->latest();
+        return $this->hasMany(AdminComment::class)->latest();
     }
 }
