@@ -14,11 +14,6 @@ export default {
         partners: Array,
         testimonials: Array,
     },
-    computed: {
-        flagClass() {
-            return this.featuredCountry.flag_code ? `fi fi-${this.featuredCountry.flag_code}` : '';
-        },
-    },
 };
 </script>
 
@@ -101,21 +96,21 @@ export default {
             </div>
         </section>
 
-        <!-- PARCOURS EN 7 ÉTAPES -->
+        <!-- PARCOURS ENTREPRENEUR -->
         <section id="parcours" class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-            <p class="text-xs font-semibold uppercase tracking-widest text-gold-600">Un parcours en 7 étapes</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gold-600">Un parcours en {{ journeySteps.length }} étapes</p>
 
-            <div class="relative mt-8 grid grid-cols-2 gap-y-8 sm:grid-cols-4 lg:grid-cols-7">
-                <div class="absolute left-[7%] right-[7%] top-4 hidden border-t-2 border-dotted border-primary-200 lg:block"></div>
+            <div class="relative mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8">
+                <div class="absolute left-[6%] right-[6%] top-4 hidden border-t-2 border-dotted border-primary-200 lg:block"></div>
 
                 <div v-for="(step, i) in journeySteps" :key="step.label" class="relative flex flex-col items-center text-center">
-                    <span class="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-[11px] font-bold text-white">
+                    <span class="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white">
                         {{ String(i + 1).padStart(2, '0') }}
                     </span>
-                    <div class="mt-3 flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary-600 text-primary-700">
-                        <Icon :name="step.icon" class="h-6 w-6" />
+                    <div class="mt-2.5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary-600 text-primary-700">
+                        <Icon :name="step.icon" class="h-5 w-5" />
                     </div>
-                    <p class="mt-3 text-xs font-medium text-gray-700">{{ step.label }}</p>
+                    <p class="mt-2 text-[11px] font-medium leading-tight text-gray-700">{{ step.label }}</p>
                 </div>
             </div>
 
@@ -138,7 +133,6 @@ export default {
                 <p class="text-xs font-semibold uppercase tracking-widest text-gold-400">Le pays à l'honneur</p>
                 <h2 class="mt-2 flex items-center gap-3 font-serif text-3xl font-bold text-white">
                     <img v-if="featuredCountry.flag_image" :src="featuredCountry.flag_image" class="h-8 w-12 rounded object-cover shadow" alt="" />
-                    <span v-else-if="featuredCountry.flag_code" :class="flagClass" style="width:2.75rem;height:1.75rem;border-radius:3px;display:inline-block;flex-shrink:0;"></span>
                     <span v-else-if="featuredCountry.flag">{{ featuredCountry.flag }}</span>
                     {{ featuredCountry.name }}
                 </h2>

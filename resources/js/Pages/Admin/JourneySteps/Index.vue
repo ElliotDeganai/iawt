@@ -60,9 +60,12 @@ export default {
                     <tr v-for="s in steps" :key="s.id">
                         <td class="px-4 py-3 text-gray-500">{{ s.position }}</td>
                         <td class="px-4 py-3">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary-600 text-primary-700">
-                                <Icon :name="s.icon" class="h-4 w-4" />
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary-600 text-primary-700">
+                                    <Icon :name="s.icon" class="h-4 w-4" />
+                                </span>
+                                <span class="text-xs text-gray-400">{{ s.icon }}</span>
+                            </div>
                         </td>
                         <td class="px-4 py-3 font-medium text-gray-800">{{ s.label }}</td>
                         <td class="px-4 py-3">
