@@ -1,32 +1,15 @@
 #!/bin/bash
 set -e
 
-ENV="${1:-testing}"
+echo "🔄 Déploiement de testing..."
 
-if [ "$ENV" = "production" ]; then
-    DIR="/var/www/iawt"
-else
-    DIR="/var/www/testing"
-fi
+cd /var/www/testing
 
-echo "🔄 Déploiement de InAfrikaWeTrust ($ENV)..."
-
-cd "$DIR"
+echo "→ Passage de la propriété à ubuntu..."
+sudo chown -R ubuntu:ubuntu /var/www/testing
 
 echo "→ Récupération des derniers changements..."
-git checkout -- . 2>/dev/null || true
 git pull origin main
-
-echo "→ Préparation des dossiers..."
-mkdir -p bootstrap/cache
-mkdir -p storage/logs
-mkdir -p storage/framework/{cache,sessions,views}
-mkdir -p storage/app/public
-touch storage/logs/laravel.log
-
-echo "→ Permissions..."
-sudo chown -R ubuntu:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
 
 echo "→ Installation des dépendances PHP..."
 composer install --optimize-autoloader --no-dev
@@ -36,9 +19,6 @@ npm install
 
 echo "→ Build des assets front..."
 npm run build
-
-echo "→ Lien storage..."
-php artisan storage:link 2>/dev/null || true
 
 echo "→ Application des migrations..."
 php artisan migrate --force
@@ -53,8 +33,8 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "→ Permissions finales..."
-sudo chown -R ubuntu:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
+echo "→ Passage de la propriété à www-data..."
+sudo chown -R www-data:www-data /var/www/testing
+sudo chmod -R 755 /var/www/testing/storage /var/www/testing/bootstrap/cache
 
-echo "✅ Déploiement terminé ($ENV) !"
+echo "✅ Déploiement terminé !"
