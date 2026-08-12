@@ -18,7 +18,7 @@ git checkout -- . 2>/dev/null || true
 git pull origin main
 
 echo "→ Permissions storage..."
-sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chown -R ubuntu:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
 echo "→ Installation des dépendances PHP..."
@@ -44,7 +44,7 @@ php artisan route:cache
 php artisan view:cache
 
 echo "→ Permissions finales..."
-sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chown -R ubuntu:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
 echo "✅ Déploiement terminé ($ENV) !"
