@@ -17,7 +17,14 @@ echo "→ Récupération des derniers changements..."
 git checkout -- . 2>/dev/null || true
 git pull origin main
 
-echo "→ Permissions storage..."
+echo "→ Préparation des dossiers..."
+mkdir -p bootstrap/cache
+mkdir -p storage/logs
+mkdir -p storage/framework/{cache,sessions,views}
+mkdir -p storage/app/public
+touch storage/logs/laravel.log
+
+echo "→ Permissions..."
 sudo chown -R ubuntu:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
@@ -29,6 +36,9 @@ npm install
 
 echo "→ Build des assets front..."
 npm run build
+
+echo "→ Lien storage..."
+php artisan storage:link 2>/dev/null || true
 
 echo "→ Application des migrations..."
 php artisan migrate --force
