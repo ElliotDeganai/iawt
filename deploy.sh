@@ -16,13 +16,15 @@ echo "🔄 Déploiement de InAfrikaWeTrust ($ENV)..."
 cd "$DIR"
 
 echo "→ Récupération des derniers changements..."
-# Stash les modifications locales (logs, uploads) pour ne pas bloquer le pull
 git stash --include-untracked -q 2>/dev/null || true
 git pull origin main
-# Restaurer les fichiers locaux (uploads, logs)
 git stash pop -q 2>/dev/null || true
 
 chmod +x deploy.sh
+
+echo "→ Permissions storage..."
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
 
 echo "→ Installation des dépendances PHP..."
 composer install --optimize-autoloader --no-dev
@@ -46,7 +48,7 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "→ Permissions storage..."
+echo "→ Permissions finales..."
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
