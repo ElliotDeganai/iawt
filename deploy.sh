@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-chmod +x "$0"
-
 ENV="${1:-testing}"
 
 if [ "$ENV" = "production" ]; then
@@ -16,11 +14,8 @@ echo "🔄 Déploiement de InAfrikaWeTrust ($ENV)..."
 cd "$DIR"
 
 echo "→ Récupération des derniers changements..."
-git stash --include-untracked -q 2>/dev/null || true
+git checkout -- . 2>/dev/null || true
 git pull origin main
-git stash pop -q 2>/dev/null || true
-
-chmod +x deploy.sh
 
 echo "→ Permissions storage..."
 sudo chown -R www-data:www-data storage bootstrap/cache
