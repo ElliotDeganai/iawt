@@ -23,6 +23,7 @@
         "@tiptap/starter-kit": "^3.29.2",
         "@tiptap/vue-3": "^3.29.2",
         "flag-icons": "^7.2.3",
+        "xlsx-js-style": "^1.2.0",
         "ziggy-js": "^1.6.3"
     }
 }

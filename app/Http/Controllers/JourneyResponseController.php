@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JourneyResponse;
+use App\Models\JourneyStep;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,19 @@ class JourneyResponseController extends Controller
             ]
         );
 
+        $totalSteps = JourneyStep::count();
+
+        if ($request->boolean('completed')) {
+            if ($step < $totalSteps) {
+                $message = "Étape {$step} soumise avec succès. Votre accompagnateur va l'examiner — une fois validée, l'étape suivante sera débloquée.";
+            } else {
+                $message = "Dernière étape soumise avec succès. Votre accompagnateur va l'examiner pour finaliser votre parcours. Félicitations pour être arrivé(e) jusqu'ici !";
+            }
+        } else {
+            $message = "Brouillon de l'étape {$step} enregistré.";
+        }
+
         return Redirect::route('dashboard', ['tab' => 'parcours'])
-            ->with('success', "Étape {$step} enregistrée.");
+            ->with('success', $message);
     }
 }

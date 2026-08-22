@@ -51,7 +51,7 @@ export default {
 </script>
 
 <template>
-    <div class="min-h-screen bg-cream">
+    <div class="min-h-screen bg-cream flex flex-col">
         <nav class="sticky top-0 z-40 border-b border-gray-100 bg-white">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
                 <!-- Gauche : hamburger + logo -->
@@ -182,7 +182,7 @@ export default {
             </transition>
         </nav>
 
-        <main>
+        <main class="flex-1">
             <slot />
         </main>
 

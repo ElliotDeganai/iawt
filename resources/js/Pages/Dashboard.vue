@@ -34,6 +34,7 @@ export default {
             openStep: null,
             stepData: {},
             saving: false,
+            stepErrors: {},
         };
     },
     created() {
@@ -70,10 +71,51 @@ export default {
         isStepValidated(n) { return !!this.journeyResponses?.[n]?.validated_at; },
         hasStepDraft(n) { return !!this.journeyResponses?.[n] && !this.journeyResponses[n].completed_at; },
         updateStepData(n, data) { this.stepData[n] = data; },
+        getRequiredFields(n) {
+            const R = {
+                1: { origins: 'Origine de l\'idée', who: 'Qui', what: 'Quoi', why: 'Pourquoi', how: 'Comment', where: 'Où' },
+                2: { project_name: 'Nom du projet', zone_country: 'Pays', description: 'Description', problem: 'Problème identifié', main_client: 'Client principal', decision: 'Décision' },
+                3: { value_prop: 'Proposition de valeur', segments: 'Segments de clientèle' },
+                5: { country: 'Pays d\'implantation', status: 'Statut actuel', legal_form: 'Forme juridique' },
+                6: { host_company: 'Entreprise d\'accueil', tested_activity: 'Activité testée', assessment: 'Bilan' },
+                7: { creation_country: 'Pays de création', track: 'Type de parcours' },
+                8: { checklist: 'Checklist finale' },
+            };
+            return R[n] || {};
+        },
+        validateStep(n) {
+            const required = this.getRequiredFields(n);
+            const data = this.stepData[n] || {};
+            const errors = {};
+            for (const [key, label] of Object.entries(required)) {
+                const val = data[key];
+                if (!val || (Array.isArray(val) && val.length === 0) || (typeof val === 'string' && !val.trim())) {
+                    errors[key] = `Le champ « ${label} » est requis.`;
+                }
+            }
+            return errors;
+        },
         saveStep(n, completed = false) {
+            if (completed) {
+                const errors = this.validateStep(n);
+                if (Object.keys(errors).length) {
+                    this.stepErrors = errors;
+                    this.$nextTick(() => {
+                        requestAnimationFrame(() => {
+                            const el = document.querySelector('.field-error-highlight');
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        });
+                    });
+                    return;
+                }
+            }
+            this.stepErrors = {};
             this.saving = true;
             router.post(route('journey-response.save', n), { data: this.stepData[n], completed }, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
                 onFinish: () => { this.saving = false; },
             });
         },
@@ -112,6 +154,50 @@ export default {
         </section>
 
         <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+
+            <!-- MESSAGE FLASH -->
+            <transition
+                enter-active-class="transition duration-500 ease-out"
+                enter-from-class="opacity-0 -translate-y-3"
+                enter-to-class="opacity-100 translate-y-0"
+            >
+                <div v-if="$page.props.flash?.success" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-3 flex items-center gap-3">
+                    <svg class="h-5 w-5 shrink-0 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-sm text-green-700">{{ $page.props.flash.success }}</p>
+                </div>
+            </transition>
+            <transition
+                enter-active-class="transition duration-500 ease-out"
+                enter-from-class="opacity-0 -translate-y-3"
+                enter-to-class="opacity-100 translate-y-0"
+            >
+                <div v-if="$page.props.flash?.error" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-3 flex items-center gap-3">
+                    <svg class="h-5 w-5 shrink-0 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-sm text-red-700">{{ $page.props.flash.error }}</p>
+                </div>
+            </transition>
+
+            <!-- ERREURS DE VALIDATION -->
+            <transition
+                enter-active-class="transition duration-500 ease-out"
+                enter-from-class="opacity-0 -translate-y-3"
+                enter-to-class="opacity-100 translate-y-0"
+            >
+                <div v-if="Object.keys($page.props.errors || {}).length" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="h-5 w-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.88A1 1 0 002.58 20h18.84a1 1 0 00.86-1.26L13.71 3.86a1 1 0 00-1.72 0z"/></svg>
+                        <div>
+                            <p class="text-sm font-medium text-red-800">Veuillez corriger les erreurs suivantes :</p>
+                            <ul class="mt-2 space-y-1">
+                                <li v-for="(msg, field) in $page.props.errors" :key="field" class="flex items-start gap-2 text-sm text-red-700">
+                                    <svg class="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-400" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>
+                                    {{ msg }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </transition>
 
             <!-- ═══ PAS DE CANDIDATURE ═══ -->
             <div v-if="!hasApplication" class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -225,10 +311,16 @@ export default {
                                 </div>
                             </div>
 
-                            <component :is="'Step'+(i+1)+'Form'" :model-value="stepData[i+1]" @update:model-value="updateStepData(i+1,$event)" />
-                            <div class="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                                <button type="button" :disabled="saving" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50" @click="saveStep(i+1,false)">Enregistrer le brouillon</button>
-                                <button type="button" :disabled="saving" class="inline-flex items-center gap-2 rounded-full bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50" @click="saveStep(i+1,true)">Valider cette étape</button>
+                            <component :is="'Step'+(i+1)+'Form'" :model-value="stepData[i+1]" :errors="stepErrors" @update:model-value="updateStepData(i+1,$event)" />
+                            <div class="mt-6 border-t border-gray-100 pt-5">
+                                <div v-if="Object.keys(stepErrors).length" class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5">
+                                    <svg class="h-4 w-4 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.88A1 1 0 002.58 20h18.84a1 1 0 00.86-1.26L13.71 3.86a1 1 0 00-1.72 0z"/></svg>
+                                    <p class="text-xs text-red-700">Il y a des erreurs dans le formulaire. Veuillez vérifier les champs en rouge ci-dessus.</p>
+                                </div>
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <button type="button" :disabled="saving" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50" @click="saveStep(i+1,false)">Enregistrer le brouillon</button>
+                                    <button type="button" :disabled="saving" class="inline-flex items-center gap-2 rounded-full bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50" @click="saveStep(i+1,true)">Valider cette étape</button>
+                                </div>
                             </div>
                         </div>
                     </div>
