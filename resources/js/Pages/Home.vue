@@ -115,9 +115,9 @@ export default {
             </div>
 
             <div class="mt-10 text-center">
-                <a href="#" class="inline-flex items-center gap-2 rounded-full border border-primary-600 px-6 py-3 text-sm font-semibold text-primary-700 hover:bg-primary-50">
+                <Link :href="route('journey.index')" class="inline-flex items-center gap-2 rounded-full border border-primary-600 px-6 py-3 text-sm font-semibold text-primary-700 hover:bg-primary-50">
                     Découvrir le parcours en détail →
-                </a>
+                </Link>
             </div>
         </section>
 

@@ -14,7 +14,7 @@ class FeaturedCountry extends Model
         'content', 'cover_image', 'cover_media_id', 'featured_month', 'is_published', 'is_current',
         'map_image', 'population', 'currency', 'timezone', 'official_language',
         'sunrise_time', 'sunset_time', 'best_transport',
-        'highlights', 'tourism_agencies',
+        'highlights', 'tourism_agencies','responsible_tourism',
     ];
 
     protected $casts = [
@@ -23,6 +23,7 @@ class FeaturedCountry extends Model
             'is_current' => 'boolean',
             'highlights' => 'array',
             'tourism_agencies' => 'array',
+            'responsible_tourism' => 'array',
     ];
 
     public function getRouteKeyName(): string

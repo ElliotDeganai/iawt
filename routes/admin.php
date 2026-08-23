@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StatController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\EventCategoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'admin'])
@@ -60,6 +61,11 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::post('applications/{application}/comment', [ApplicationController::class, 'comment'])->name('applications.comment');
 
         Route::resource('events', EventController::class)->except('show');
+
+        Route::get('event-categories', [EventCategoryController::class, 'index'])->name('event-categories.index');
+        Route::post('event-categories', [EventCategoryController::class, 'store'])->name('event-categories.store');
+        Route::put('event-categories/{eventCategory}', [EventCategoryController::class, 'update'])->name('event-categories.update');
+        Route::delete('event-categories/{eventCategory}', [EventCategoryController::class, 'destroy'])->name('event-categories.destroy');
 
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');

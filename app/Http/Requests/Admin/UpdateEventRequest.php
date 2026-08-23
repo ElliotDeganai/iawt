@@ -14,15 +14,16 @@ class UpdateEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'          => ['required', 'string', 'max:191'],
-            'description'    => ['nullable', 'string'],
-            'image'          => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp'],
-            'remove_image'   => ['boolean'],
-            'url'            => ['nullable', 'url', 'max:500'],
-            'date'           => ['required', 'date'],
-            'time'           => ['nullable', 'date_format:H:i'],
-            'is_featured'    => ['boolean'],
-            'is_published'   => ['boolean'],
+            'title'             => ['required', 'string', 'max:191'],
+            'description'       => ['nullable', 'string'],
+            'image'             => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp'],
+            'remove_image'      => ['boolean'],
+            'url'               => ['nullable', 'url', 'max:500'],
+            'date'              => ['required', 'date'],
+            'time'              => ['nullable', 'string', 'max:10'],
+            'is_featured'       => ['boolean'],
+            'is_published'      => ['boolean'],
+            'event_category_id' => ['nullable', 'exists:event_categories,id'],
         ];
     }
 }

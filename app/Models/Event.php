@@ -12,6 +12,7 @@ class Event extends Model
     protected $fillable = [
         'title', 'description', 'image', 'url',
         'date', 'time', 'is_featured', 'is_published',
+        'event_category_id',
     ];
 
     protected $casts = [
@@ -19,4 +20,9 @@ class Event extends Model
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(EventCategory::class, 'event_category_id');
+    }
 }

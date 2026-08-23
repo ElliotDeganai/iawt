@@ -46,6 +46,14 @@ class StoreFeaturedCountryRequest extends FormRequest
             'tourism_agencies.*.website' => ['nullable', 'string', 'max:191'],
             'tourism_agencies.*.email' => ['nullable', 'email', 'max:191'],
             'tourism_agencies.*.phone' => ['nullable', 'string', 'max:50'],
+            'tourism_agencies.*.description' => ['nullable', 'string'],
+
+            'responsible_tourism' => ['nullable', 'array'],
+            'responsible_tourism.*.name' => ['required', 'string'],
+            'responsible_tourism.*.description' => ['nullable', 'string'],
+            'responsible_tourism.*.website' => ['nullable', 'string'],
+            'responsible_tourism.*.email' => ['nullable', 'string'],
+            'responsible_tourism.*.phone' => ['nullable', 'string'],
 
             // Où se loger / shopping / manger / s'enjailler / se dépenser / apprendre
             // Lieux (table relationnelle country_places)

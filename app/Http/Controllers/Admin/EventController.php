@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEventRequest;
 use App\Http\Requests\Admin\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\EventCategory;
 use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -23,13 +24,15 @@ class EventController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Events/Index', [
-            'events' => Event::orderBy('date')->orderBy('time')->get(),
+            'events' => Event::with('category')->orderBy('date')->orderBy('time')->get(),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Admin/Events/Create');
+        return Inertia::render('Admin/Events/Create', [
+            'categories' => EventCategory::orderBy('sort_order')->get(),
+        ]);
     }
 
     public function store(StoreEventRequest $request): RedirectResponse
@@ -50,6 +53,7 @@ class EventController extends Controller
     {
         return Inertia::render('Admin/Events/Edit', [
             'event' => $event,
+            'categories' => EventCategory::orderBy('sort_order')->get(),
         ]);
     }
 
