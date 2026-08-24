@@ -27,6 +27,7 @@ export default {
         application: Object,
         steps: Array,
         journeyResponses: Object,
+        userProfile: { type: Object, default: () => ({}) },
     },
     data() {
         return {
@@ -38,9 +39,18 @@ export default {
         };
     },
     created() {
+        const profile = this.userProfile || {};
         for (let i = 1; i <= 8; i++) {
             const existing = this.journeyResponses?.[i];
-            this.stepData[i] = existing?.data ? { ...existing.data } : {};
+            const data = existing?.data ? { ...existing.data } : {};
+
+            // Pre-fill step 2 from profile if fields are empty
+            if (i === 2) {
+                if (!data.zone_country && profile.country) data.zone_country = profile.country;
+                if (!data.zone_city && profile.city) data.zone_city = profile.city;
+            }
+
+            this.stepData[i] = data;
         }
     },
     computed: {

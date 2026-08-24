@@ -80,6 +80,9 @@ class ApplicationController extends Controller
 
         $application->update($data);
 
+        // Sync to user profile
+        $this->syncToProfile($application, $step, $data);
+
         if ($step === 4 && $request->boolean('is_final')) {
             $application->update([
                 'status'       => 'submitted',
@@ -179,4 +182,32 @@ class ApplicationController extends Controller
             'consent_image'    => ['accepted'],
         ]);
     }
+
+    private function syncToProfile(Application $application, int $step, array $data): void
+    {
+        if ($step !== 1) return;
+
+        $user = Auth::user();
+        $updated = false;
+
+        if (!empty($data['country_of_residence']) && empty($user->country)) {
+            $user->country = $data['country_of_residence'];
+            $updated = true;
+        }
+        if (!empty($data['city_of_residence']) && empty($user->city)) {
+            $user->city = $data['city_of_residence'];
+            $updated = true;
+        }
+        if (!empty($data['whatsapp_phone']) && empty($user->whatsapp)) {
+            $user->whatsapp = $data['whatsapp_phone'];
+            $updated = true;
+        }
+        if (!empty($data['gender']) && empty($user->gender)) {
+            $user->gender = $data['gender'];
+            $updated = true;
+        }
+
+        if ($updated) $user->save();
+    }
+
 }

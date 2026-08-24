@@ -12,19 +12,14 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'first_name' => ['required', 'string', 'max:191'],
-            'last_name' => ['required', 'string', 'max:191'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:191',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'country' => ['nullable', 'string', 'max:191'],
-            'city' => ['nullable', 'string', 'max:191'],
-            'avatar' => ['nullable', 'image', 'max:2048'],
+            'last_name'  => ['required', 'string', 'max:191'],
+            'email'      => ['required', 'string', 'lowercase', 'email', 'max:191', Rule::unique(User::class)->ignore($this->user()->id)],
+            'phone'      => ['nullable', 'string', 'max:50'],
+            'whatsapp'   => ['nullable', 'string', 'max:50'],
+            'country'    => ['nullable', 'string', 'max:191'],
+            'city'       => ['nullable', 'string', 'max:191'],
+            'gender'     => ['nullable', 'in:M,F'],
+            'avatar'     => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

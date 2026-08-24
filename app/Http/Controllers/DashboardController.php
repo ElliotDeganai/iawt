@@ -13,10 +13,11 @@ class DashboardController extends Controller
 {
     public function index(): Response
     {
-        $application = Application::where('user_id', Auth::id())->first();
+        $user        = Auth::user();
+        $application = Application::where('user_id', $user->id)->first();
         $steps       = JourneyStep::orderBy('position')->get();
 
-        $journeyResponses = JourneyResponse::where('user_id', Auth::id())
+        $journeyResponses = JourneyResponse::where('user_id', $user->id)
             ->get()
             ->keyBy('step_number');
 
@@ -24,6 +25,11 @@ class DashboardController extends Controller
             'application'      => $application,
             'steps'            => $steps,
             'journeyResponses' => $journeyResponses,
+            'userProfile'      => [
+                'phone'   => $user->phone,
+                'country' => $user->country,
+                'city'    => $user->city,
+            ],
         ]);
     }
 }

@@ -43,6 +43,9 @@ class JourneyResponseController extends Controller
             ]
         );
 
+        // Sync profile fields from journey data
+        $this->syncProfileFromJourney($user, $step, $request->input('data'));
+
         $totalSteps = JourneyStep::count();
 
         if ($request->boolean('completed')) {
@@ -57,5 +60,30 @@ class JourneyResponseController extends Controller
 
         return Redirect::route('dashboard', ['tab' => 'parcours'])
             ->with('success', $message);
+    }
+
+    /**
+     * Sync phone / country / city from journey step data back to user profile
+     * (only if the user hasn't already filled them in their profile).
+     */
+    private function syncProfileFromJourney($user, int $step, array $data): void
+    {
+        $updated = false;
+
+        // Step 2 has zone_country and zone_city
+        if ($step === 2) {
+            if (!empty($data['zone_country']) && empty($user->country)) {
+                $user->country = $data['zone_country'];
+                $updated = true;
+            }
+            if (!empty($data['zone_city']) && empty($user->city)) {
+                $user->city = $data['zone_city'];
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
+            $user->save();
+        }
     }
 }
