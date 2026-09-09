@@ -7,6 +7,8 @@ import Checkbox from '@/Components/Checkbox.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+import { AFRICAN_COUNTRIES, getCities } from '@/Data/africanCountries';
+
 export default {
     components: { AdminLayout, InputLabel, InputError, TextInput, Checkbox, PrimaryButton, Head, Link },
     props: {
@@ -15,6 +17,9 @@ export default {
     },
     data() {
         return {
+            africanCountries: AFRICAN_COUNTRIES,
+            availableCities: [],
+            customCity: false,
             form: useForm({
                 first_name: this.user.first_name,
                 last_name: this.user.last_name,
@@ -29,6 +34,7 @@ export default {
         };
     },
     methods: {
+        getCitiesForCountry() { this.availableCities = getCities(this.form.country); this.customCity = false; this.form.city = ''; },
         submit() {
             this.form.put(route('admin.users.update', this.user.id));
         },
@@ -77,11 +83,22 @@ export default {
                 </div>
                 <div>
                     <InputLabel value="Pays" />
-                    <TextInput v-model="form.country" class="mt-1" />
+                    <select v-model="form.country" @change="getCitiesForCountry()" class="mt-1 w-full rounded-md border-gray-300 text-sm">
+                        <option value="">Sélectionnez un pays</option>
+                        <option v-for="c in africanCountries" :key="c.name" :value="c.name">{{ c.name }}</option>
+                    </select>
                 </div>
                 <div>
                     <InputLabel value="Ville" />
-                    <TextInput v-model="form.city" class="mt-1" />
+                    <select v-if="availableCities.length && !customCity" v-model="form.city" @change="if(form.city==='__other__'){customCity=true;form.city=''}" class="mt-1 w-full rounded-md border-gray-300 text-sm">
+                        <option value="">Sélectionnez une ville</option>
+                        <option v-for="city in availableCities" :key="city" :value="city">{{ city }}</option>
+                        <option value="__other__">Autre ville…</option>
+                    </select>
+                    <div v-if="customCity || !availableCities.length">
+                        <TextInput v-model="form.city" class="mt-1" placeholder="Saisissez la ville" />
+                        <button v-if="customCity && availableCities.length" type="button" class="mt-1 text-xs text-primary-600 hover:underline" @click="customCity=false;form.city=''">Revenir à la liste</button>
+                    </div>
                 </div>
             </div>
 

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\User;
+use App\Notifications\ApplicationSubmitted;
+use App\Notifications\NewApplicationForAdmin;
 use Inertia\Response;
 
 class ApplicationController extends Controller
@@ -80,14 +83,21 @@ class ApplicationController extends Controller
 
         $application->update($data);
 
-        // Sync to user profile
-        $this->syncToProfile($application, $step, $data);
-
         if ($step === 4 && $request->boolean('is_final')) {
             $application->update([
                 'status'       => 'submitted',
                 'submitted_at' => now(),
             ]);
+
+            // Notify the candidate
+            Auth::user()->notify(new ApplicationSubmitted());
+
+            // Notify all admins
+            $application->load('user');
+            User::whereHas('role', fn ($q) => $q->where('slug', 'admin'))
+                ->get()
+                ->each(fn ($admin) => $admin->notify(new NewApplicationForAdmin($application)));
+
             return Redirect::route('application.submitted');
         }
 
@@ -182,32 +192,4 @@ class ApplicationController extends Controller
             'consent_image'    => ['accepted'],
         ]);
     }
-
-    private function syncToProfile(Application $application, int $step, array $data): void
-    {
-        if ($step !== 1) return;
-
-        $user = Auth::user();
-        $updated = false;
-
-        if (!empty($data['country_of_residence']) && empty($user->country)) {
-            $user->country = $data['country_of_residence'];
-            $updated = true;
-        }
-        if (!empty($data['city_of_residence']) && empty($user->city)) {
-            $user->city = $data['city_of_residence'];
-            $updated = true;
-        }
-        if (!empty($data['whatsapp_phone']) && empty($user->whatsapp)) {
-            $user->whatsapp = $data['whatsapp_phone'];
-            $updated = true;
-        }
-        if (!empty($data['gender']) && empty($user->gender)) {
-            $user->gender = $data['gender'];
-            $updated = true;
-        }
-
-        if ($updated) $user->save();
-    }
-
 }

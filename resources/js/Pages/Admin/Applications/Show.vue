@@ -1,6 +1,7 @@
 <script>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Icon from '@/Components/Icon.vue';
+import StepResponseView from '@/Components/StepResponseView.vue';
 import Modal from '@/Components/Modal.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 
@@ -27,7 +28,7 @@ const SUPPORT_LABELS = {
 };
 
 export default {
-    components: { AdminLayout, Icon, Modal, Head, Link },
+    components: { AdminLayout, Icon, Modal, Head, Link, StepResponseView },
     props: {
         application: Object,
         journeySteps: Array,
@@ -39,6 +40,8 @@ export default {
             expandedStep: null,
             showRejectModal: false,
             reworkStep: null,
+            fastForwardTarget: '',
+            fastForwarding: false,
             reworkForm: useForm({ step: null, reason: '' }),
             rejectForm: useForm({ rejection_reason: '' }),
             commentForm: useForm({ body: '' }),
@@ -96,6 +99,16 @@ export default {
             this.reworkForm.put(route('admin.applications.rework-step', this.a.id), {
                 preserveScroll: true,
                 onSuccess: () => { this.reworkStep = null; this.reworkForm.reset(); },
+            });
+        },
+        fastForward() {
+            if (!this.fastForwardTarget) return;
+            this.fastForwarding = true;
+            router.post(route('admin.applications.fast-forward', this.a.id), {
+                step: parseInt(this.fastForwardTarget),
+            }, {
+                preserveScroll: true,
+                onFinish: () => { this.fastForwarding = false; },
             });
         },
         submitComment() {
@@ -235,7 +248,41 @@ export default {
                 founders: 'Nombre de fondateurs',
                 investment: 'Investissement initial',
                 bank_need: 'Besoin financement bancaire',
-                legal_form: 'Forme juridique choisie',
+                legal_form: 'Forme juridique recommandée (1ère)',
+                legal_form_2: 'Forme juridique recommandée (2ème)',
+                sub_sector: 'Sous-secteur',
+                activity_location: 'Localisation de l\'activité',
+                project_type: 'Projet individuel ou collectif',
+                founders: 'Nombre de fondateurs',
+                jobs_y1: 'Emplois prévus — année 1',
+                jobs_y3: 'Emplois prévus — année 3',
+                personal_contribution: 'Apport personnel',
+                funding_needed: 'Financement recherché',
+                revenue_y1: 'CA prévisionnel — année 1',
+                revenue_y3: 'CA prévisionnel — année 3',
+                ext_investors: 'Investisseurs externes',
+                objective: 'Objectif à 3-5 ans',
+                Q1: 'Q1 — Porteurs du projet',
+                Q2: 'Q2 — Personne morale souhaitée',
+                Q3: 'Q3 — Protection patrimoine',
+                Q4: 'Q4 — Investissement nécessaire',
+                Q5: 'Q5 — Investisseurs externes',
+                Q6: 'Q6 — Investisseurs étrangers',
+                Q7: 'Q7 — Nouveaux associés (3-5 ans)',
+                Q8: 'Q8 — Liberté organisation associés',
+                Q9: 'Q9 — Transmission / cession',
+                Q10: 'Q10 — Financements bancaires',
+                Q11: 'Q11 — Plusieurs producteurs / membres',
+                Q12: 'Q12 — Production / achat collectif',
+                Q13: 'Q13 — Mutualisation de moyens',
+                Q14: 'Q14 — Activité réglementée',
+                Q15: 'Q15 — Foncier / environnement',
+                Q16: 'Q16 — Salariés prévus',
+                Q17: 'Q17 — Projet familial',
+                Q18: 'Q18 — Administration simple',
+                Q19: 'Q19 — Croissance rapide',
+                Q20: 'Q20 — Plusieurs activités / filiales',
+                auto_verif: 'Auto-vérification',
 
                 // Étape 6 — Business Ground Lab
                 holder_name: 'Nom du porteur',
@@ -281,6 +328,14 @@ export default {
                 notes: 'Notes personnelles',
             };
             return labels[key] || key.replace(/^(need_|res_|cr_)/, '').replace(/_y[123]$/, m => ' A' + m.slice(-1)).replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+        },
+        formatValue(key, value) {
+            // Financial fields - format with apostrophe
+            if (typeof value === 'number' && (key.startsWith('n_') || key.startsWith('r_') || key.startsWith('p_') || key.startsWith('c_') || key.startsWith('ti_') || key.startsWith('to_') || key.startsWith('fin_') || key.startsWith('tax_') || ['revenue', 'expense_purchases', 'expense_transport', 'expense_comm', 'expense_other', 'sales_count', 'investment'].includes(key))) {
+                return String(Math.abs(value)).replace(/\B(?=(\d{3})+(?!\d))/g, "'") + (value < 0 ? ' (négatif)' : '');
+            }
+            if (typeof value === 'boolean') return value ? '✓ Oui' : '— Non';
+            return value;
         },
         formatDate(d) {
             if (!d) return '—';
@@ -430,6 +485,25 @@ export default {
         <!-- ═══ TAB PARCOURS ═══ -->
         <div v-if="activeTab === 'parcours'">
             <div v-if="a.status !== 'accepted'" class="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-5 py-3"><p class="text-sm text-amber-700">Le parcours est verrouillé — la candidature doit être acceptée pour débloquer les étapes.</p></div>
+
+            <!-- Fast-forward (dev/admin) -->
+            <div v-if="$page.props.canFastForward" class="mb-4 rounded-xl border border-dashed border-violet-300 bg-violet-50 px-5 py-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        <span class="text-xs font-medium text-violet-700">Fast-forward</span>
+                    </div>
+                    <select v-model="fastForwardTarget" class="rounded-md border-violet-200 bg-white text-xs text-violet-800 py-1">
+                        <option value="">Avancer jusqu'à…</option>
+                        <option v-for="s in 8" :key="s" :value="s">Étape {{ s }}</option>
+                    </select>
+                    <button type="button" :disabled="!fastForwardTarget || fastForwarding" class="inline-flex items-center gap-1 rounded-md bg-violet-600 px-3 py-1 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-50" @click="fastForward">
+                        <svg v-if="fastForwarding" class="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" class="opacity-75"/></svg>
+                        Aller à l'étape {{ fastForwardTarget || '?' }}
+                    </button>
+                </div>
+                <p class="mt-1 text-[10px] text-violet-400">Valide les étapes précédentes avec des données fictives et efface les étapes suivantes. Fonctionne en avant et en arrière.</p>
+            </div>
             <div class="space-y-3">
                 <div v-for="(step, i) in journeySteps" :key="step.id" class="rounded-xl border border-gray-100 bg-white overflow-hidden">
                     <div class="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-gray-50" @click="toggleStepExpand(i + 1)">
@@ -450,33 +524,22 @@ export default {
                         <button v-if="a.status==='accepted'&&i+1>a.journey_current_step" type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50" @click.stop="unlockStep(i+1)"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Débloquer</button>
                         <svg v-if="hasStepResponse(i+1)" class="h-4 w-4 text-gray-400 transition" :class="expandedStep===(i+1)?'rotate-180':''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div v-if="expandedStep===(i+1)&&hasStepResponse(i+1)" class="border-t border-gray-100 bg-gray-50/50 px-5 py-4">
+                    <transition
+                        enter-active-class="transition-all duration-300 ease-out"
+                        enter-from-class="max-h-0 opacity-0"
+                        enter-to-class="max-h-[2000px] opacity-100"
+                        leave-active-class="transition-all duration-200 ease-in"
+                        leave-from-class="max-h-[2000px] opacity-100"
+                        leave-to-class="max-h-0 opacity-0"
+                    >
+                    <div v-if="expandedStep===(i+1)&&hasStepResponse(i+1)" class="border-t border-gray-100 bg-gray-50/50 px-5 py-4 overflow-hidden">
                         <div v-if="journeyResponses?.[i+1]?.rework_reason" class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
                             <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-1">Motif de retravail</p>
                             <p class="text-sm text-amber-800">{{ journeyResponses[i+1].rework_reason }}</p>
                         </div>
-                        <div class="space-y-3">
-                            <div v-for="(value, key) in getStepResponses(i+1)" :key="key">
-                                <template v-if="value!==null&&value!==''&&!(Array.isArray(value)&&value.length===0)&&!(typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===0)">
-                                    <p class="text-[10px] font-medium uppercase tracking-wider text-gray-400">{{ formatFieldLabel(key) }}</p>
-                                    <template v-if="Array.isArray(value)&&value.length&&typeof value[0]==='object'">
-                                        <div v-for="(item, idx) in value" :key="idx" class="mt-1 mb-2 rounded-lg border border-gray-200 bg-white p-3">
-                                            <div class="grid grid-cols-1 gap-1 sm:grid-cols-2">
-                                                <div v-for="(v, k) in item" :key="k"><span class="text-[10px] text-gray-400">{{ formatFieldLabel(k) }}</span><p class="text-sm text-gray-700">{{ v || '—' }}</p></div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    <template v-else-if="typeof value==='object'&&!Array.isArray(value)">
-                                        <div class="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
-                                            <div v-for="(v, k) in value" :key="k" class="flex items-center gap-2"><span class="text-xs text-gray-500">{{ formatFieldLabel(k) }} :</span><span class="text-sm text-gray-800">{{ typeof v==='boolean'?(v?'✓':'—'):(v||'—') }}</span></div>
-                                        </div>
-                                    </template>
-                                    <template v-else-if="Array.isArray(value)"><p class="mt-0.5 text-sm text-gray-700">{{ value.join(', ') }}</p></template>
-                                    <template v-else><p class="mt-0.5 text-sm text-gray-700">{{ value }}</p></template>
-                                </template>
-                            </div>
-                        </div>
+                        <StepResponseView :step="i+1" :data="getStepResponses(i+1)" />
                     </div>
+                    </transition>
                 </div>
             </div>
         </div>

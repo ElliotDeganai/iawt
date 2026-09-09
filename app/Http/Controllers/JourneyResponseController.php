@@ -6,6 +6,9 @@ use App\Models\JourneyResponse;
 use App\Models\JourneyStep;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\StepSubmitted;
+use App\Notifications\StepSubmittedForAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
@@ -39,9 +42,20 @@ class JourneyResponseController extends Controller
             [
                 'data'           => $request->input('data'),
                 'completed_at'   => $request->boolean('completed') ? now() : null,
-                'rework_reason'  => $request->boolean('completed') ? null : null,
+                'validated_at'   => $request->boolean('completed') ? null : null,
+                'rework_reason'  => null,
             ]
         );
+
+        // Send notifications on completed step (first submission or resubmission)
+        if ($request->boolean('completed')) {
+            $user->notify(new StepSubmitted($step));
+
+            $application->load('user');
+            User::whereHas('role', fn ($q) => $q->where('slug', 'admin'))
+                ->get()
+                ->each(fn ($admin) => $admin->notify(new StepSubmittedForAdmin($application, $step)));
+        }
 
         // Sync profile fields from journey data
         $this->syncProfileFromJourney($user, $step, $request->input('data'));
@@ -62,15 +76,10 @@ class JourneyResponseController extends Controller
             ->with('success', $message);
     }
 
-    /**
-     * Sync phone / country / city from journey step data back to user profile
-     * (only if the user hasn't already filled them in their profile).
-     */
     private function syncProfileFromJourney($user, int $step, array $data): void
     {
         $updated = false;
 
-        // Step 2 has zone_country and zone_city
         if ($step === 2) {
             if (!empty($data['zone_country']) && empty($user->country)) {
                 $user->country = $data['zone_country'];

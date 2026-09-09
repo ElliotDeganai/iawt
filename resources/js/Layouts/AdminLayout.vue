@@ -47,7 +47,7 @@ export default {
                 {
                     label: 'Programme',
                     items: [
-                        { label: 'Candidatures', href: route('admin.applications.index'), active: route().current('admin.applications.*'), icon: 'clipboard', show: this.permissions.includes('applications.manage') },
+                        { label: 'Candidatures', href: route('admin.applications.index'), active: route().current('admin.applications.*'), icon: 'clipboard', show: this.permissions.includes('applications.manage'), badge: this.$page.props.pendingApplicationsCount || 0 },
                     ],
                 },
                 {
@@ -128,6 +128,7 @@ export default {
                             <path :d="iconPath(item.icon)" />
                         </svg>
                         {{ item.label }}
+                        <span v-if="item.badge" class="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">{{ item.badge }}</span>
                     </Link>
                 </template>
             </nav>

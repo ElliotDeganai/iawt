@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nouvelle inscription</title>
+<title>Votre compte a été créé</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f7f3ee;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
@@ -24,39 +24,42 @@
         <td style="background-color:#ffffff;padding:32px;">
 
             <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#3a0f17;">
-                Nouvelle inscription
+                Bienvenue sur {{ $siteName }}
             </p>
             <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.5;">
-                Bonjour {{ $admin->first_name }}, un nouvel utilisateur vient de créer un compte.
+                Bonjour {{ $newUser->first_name }}, un compte a été créé pour vous sur la plateforme {{ $siteName }}.
             </p>
 
-            {{-- User card --}}
+            {{-- Credentials card --}}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;">
             <tr><td style="padding:20px;">
-                <table role="presentation" cellpadding="0" cellspacing="0">
+                <p style="margin:0 0 12px;font-size:13px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:1px;">Vos identifiants de connexion</p>
+                <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
-                    <td width="48" valign="top">
-                        <div style="width:44px;height:44px;border-radius:50%;background-color:#7a1f2b;color:#ffffff;font-size:15px;font-weight:bold;text-align:center;line-height:44px;font-family:Arial,sans-serif;">{{ strtoupper(mb_substr($newUser->first_name,0,1) . mb_substr($newUser->last_name,0,1)) }}</div>
-                    </td>
-                    <td style="padding-left:14px;vertical-align:top;">
-                        <p style="margin:0;font-size:16px;font-weight:600;color:#1f2937;">{{ $newUser->first_name }} {{ $newUser->last_name }}</p>
-                        <p style="margin:3px 0 0;font-size:13px;color:#6b7280;">{{ $newUser->email }}</p>
-                        <p style="margin:3px 0 0;font-size:12px;color:#9ca3af;">Inscrit le {{ $newUser->created_at->format('d/m/Y à H:i') }}</p>
-                    </td>
+                    <td style="padding:6px 0;font-size:13px;color:#6b7280;width:120px;">E-mail :</td>
+                    <td style="padding:6px 0;font-size:14px;font-weight:600;color:#1f2937;">{{ $newUser->email }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:6px 0;font-size:13px;color:#6b7280;">Mot de passe :</td>
+                    <td style="padding:6px 0;font-size:14px;font-weight:600;color:#1f2937;font-family:'Courier New',monospace;letter-spacing:0.5px;">{{ $plainPassword }}</td>
                 </tr>
                 </table>
             </td></tr>
             </table>
 
+            <p style="margin:20px 0 0;font-size:13px;color:#dc2626;line-height:1.5;">
+                Pour votre sécurité, nous vous recommandons de changer votre mot de passe dès votre première connexion.
+            </p>
+
             {{-- CTA --}}
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px auto 0;">
             <tr><td>
-                <a href="{{ url('/admin/users') }}" style="display:inline-block;padding:12px 32px;background-color:#7a1f2b;text-decoration:none;border-radius:50px;"><span style="color:#ffffff;font-size:14px;font-weight:600;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">Voir les utilisateurs &rarr;</span></a>
+                <a href="{{ $loginUrl }}" style="display:inline-block;padding:12px 32px;background-color:#7a1f2b;text-decoration:none;border-radius:50px;"><span style="color:#ffffff;font-size:14px;font-weight:600;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">Se connecter &rarr;</span></a>
             </td></tr>
             </table>
 
             <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;line-height:1.5;text-align:center;">
-                Vous recevez cet e-mail car vous êtes administrateur de la plateforme.
+                Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet e-mail.
             </p>
         </td>
     </tr>

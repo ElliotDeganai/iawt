@@ -27,7 +27,6 @@ export default {
         application: Object,
         steps: Array,
         journeyResponses: Object,
-        userProfile: { type: Object, default: () => ({}) },
     },
     data() {
         return {
@@ -39,18 +38,12 @@ export default {
         };
     },
     created() {
-        const profile = this.userProfile || {};
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('tab') === 'parcours') this.activeTab = 'parcours';
+
         for (let i = 1; i <= 8; i++) {
             const existing = this.journeyResponses?.[i];
-            const data = existing?.data ? { ...existing.data } : {};
-
-            // Pre-fill step 2 from profile if fields are empty
-            if (i === 2) {
-                if (!data.zone_country && profile.country) data.zone_country = profile.country;
-                if (!data.zone_city && profile.city) data.zone_city = profile.city;
-            }
-
-            this.stepData[i] = data;
+            this.stepData[i] = existing?.data ? { ...existing.data } : {};
         }
     },
     computed: {
@@ -122,10 +115,7 @@ export default {
             this.stepErrors = {};
             this.saving = true;
             router.post(route('journey-response.save', n), { data: this.stepData[n], completed }, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                },
+                preserveScroll: false,
                 onFinish: () => { this.saving = false; },
             });
         },
@@ -309,7 +299,15 @@ export default {
                             <span v-else class="text-gray-300"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
                             <svg v-if="isStepUnlocked(i+1)" class="h-4 w-4 text-gray-400 transition" :class="openStep===i+1?'rotate-180':''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <div v-if="openStep===i+1 && isStepUnlocked(i+1)" class="border-t border-gray-100 px-5 py-5">
+                        <transition
+                        enter-active-class="transition-all duration-300 ease-out"
+                        enter-from-class="max-h-0 opacity-0"
+                        enter-to-class="max-h-[5000px] opacity-100"
+                        leave-active-class="transition-all duration-200 ease-in"
+                        leave-from-class="max-h-[5000px] opacity-100"
+                        leave-to-class="max-h-0 opacity-0"
+                    >
+                        <div v-if="openStep===i+1 && isStepUnlocked(i+1)" class="border-t border-gray-100 px-5 py-5 overflow-hidden">
                             <!-- Message de retravail de l'admin -->
                             <div v-if="journeyResponses?.[i+1]?.rework_reason" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
                                 <div class="flex items-start gap-3">
@@ -333,6 +331,7 @@ export default {
                                 </div>
                             </div>
                         </div>
+                    </transition>
                     </div>
                 </div>
             </template>

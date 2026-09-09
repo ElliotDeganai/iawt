@@ -34,15 +34,28 @@ const STATUSES = [
     { value: 'unemployed',    label: 'Sans emploi' },
 ];
 
+import { AFRICAN_COUNTRIES, getCities } from '@/Data/africanCountries';
+
 export default {
     components: { PublicLayout, InputError, Head },
     props: {
         application: Object,
         step: Number,
     },
+    mounted() {
+        if (this.form?.country_of_residence) {
+            this.availableCities = getCities(this.form.country_of_residence);
+            if (this.form.city_of_residence && !this.availableCities.includes(this.form.city_of_residence)) {
+                this.customCity = true;
+            }
+        }
+    },
     data() {
         const a = this.application;
         return {
+            africanCountries: AFRICAN_COUNTRIES,
+            availableCities: [],
+            customCity: false,
             sectors:      SECTORS,
             supportNeeds: SUPPORT_NEEDS,
             stages:       STAGES,
@@ -98,6 +111,21 @@ export default {
         },
     },
     methods: {
+        onCountryChange(val) {
+            this.form.country_of_residence = val;
+            this.availableCities = getCities(val);
+            this.form.city_of_residence = '';
+            this.customCity = false;
+        },
+        onCitySelect(val) {
+            if (val === '__other__') {
+                this.customCity = true;
+                this.form.city_of_residence = '';
+            } else {
+                this.customCity = false;
+                this.form.city_of_residence = val;
+            }
+        },
         countWords(text) {
             return text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
         },
@@ -203,12 +231,23 @@ export default {
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">Pays de résidence <span class="text-red-500">*</span></label>
-                                        <input v-model="form.country_of_residence" type="text" class="w-full rounded-lg border-gray-200 text-sm" placeholder="Ex : Côte d'Ivoire" />
+                                        <select :value="form.country_of_residence" @change="onCountryChange($event.target.value)" class="w-full rounded-lg border-gray-200 text-sm">
+                                            <option value="">Sélectionnez un pays</option>
+                                            <option v-for="c in africanCountries" :key="c.name" :value="c.name">{{ c.name }}</option>
+                                        </select>
                                         <InputError class="mt-1" :message="form.errors.country_of_residence" />
                                     </div>
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">Ville de résidence <span class="text-red-500">*</span></label>
-                                        <input v-model="form.city_of_residence" type="text" class="w-full rounded-lg border-gray-200 text-sm" placeholder="Ex : Abidjan" />
+                                        <select v-if="availableCities.length && !customCity" :value="form.city_of_residence" @change="onCitySelect($event.target.value)" class="w-full rounded-lg border-gray-200 text-sm">
+                                            <option value="">Sélectionnez une ville</option>
+                                            <option v-for="city in availableCities" :key="city" :value="city">{{ city }}</option>
+                                            <option value="__other__">Autre ville…</option>
+                                        </select>
+                                        <div v-if="customCity || !availableCities.length">
+                                            <input v-model="form.city_of_residence" type="text" class="w-full rounded-lg border-gray-200 text-sm" placeholder="Saisissez le nom de votre ville" />
+                                            <button v-if="customCity && availableCities.length" type="button" class="mt-1 text-xs text-primary-600 hover:underline" @click="customCity = false; form.city_of_residence = ''">Revenir à la liste</button>
+                                        </div>
                                         <InputError class="mt-1" :message="form.errors.city_of_residence" />
                                     </div>
                                 </div>

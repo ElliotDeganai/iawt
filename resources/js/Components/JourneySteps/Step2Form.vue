@@ -1,14 +1,35 @@
 <script>
+import { AFRICAN_COUNTRIES, getCities } from '@/Data/africanCountries';
+
 export default {
     props: {
         modelValue: { type: Object, default: () => ({}) },
         errors: { type: Object, default: () => ({}) },
+    },
+    data() {
+        return {
+            africanCountries: AFRICAN_COUNTRIES,
+            availableCities: this.modelValue?.zone_country ? getCities(this.modelValue.zone_country) : [],
+            customCity: false,
+        };
+    },
+    watch: {
+        'modelValue.zone_country'(val) {
+            this.availableCities = val ? getCities(val) : [];
+            if (val && this.d.zone_city && !this.availableCities.includes(this.d.zone_city)) {
+                this.customCity = true;
+            }
+        },
     },
     computed: { d() { return this.modelValue; } },
     methods: {
         hasErr(k) { return !!this.errors[k]; },
         errMsg(k) { return this.errors[k] || ''; },
         errClass(k) { return this.hasErr(k) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'; },
+        onCountryChange(val) {
+            this.$emit('update:modelValue', { ...this.d, zone_country: val, zone_city: '' });
+            this.customCity = false;
+        },
         update(key, val) { this.$emit('update:modelValue', { ...this.d, [key]: val }); },
         addCompetitor() {
             const arr = this.d.competitors || [];
@@ -44,9 +65,23 @@ export default {
                     <div><label class="block text-xs text-gray-600 mb-1">Porteur(s) du projet</label><input :value="d.project_holders||''" @input="update('project_holders',$event.target.value)" class="w-full rounded-md border-gray-200 text-sm" /></div>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div><label class="block text-xs text-gray-600 mb-1">Pays</label><input :value="d.zone_country||''" @input="update('zone_country',$event.target.value)" class="w-full rounded-md text-sm" :class="errClass('zone_country')" /><p v-if="hasErr('zone_country')" class="mt-1 text-xs text-red-600">{{ errMsg('zone_country') }}</p></div>
+                    <div><label class="block text-xs text-gray-600 mb-1">Pays</label>
+                    <select :value="d.zone_country||''" @change="onCountryChange($event.target.value)" class="w-full rounded-md text-sm" :class="errClass('zone_country')">
+                        <option value="">Sélectionnez un pays</option>
+                        <option v-for="c in africanCountries" :key="c.name" :value="c.name">{{ c.name }}</option>
+                    </select>
+                    <p v-if="hasErr('zone_country')" class="mt-1 text-xs text-red-600">{{ errMsg('zone_country') }}</p></div>
                     <div><label class="block text-xs text-gray-600 mb-1">Région</label><input :value="d.zone_region||''" @input="update('zone_region',$event.target.value)" class="w-full rounded-md border-gray-200 text-sm" /></div>
-                    <div><label class="block text-xs text-gray-600 mb-1">Ville</label><input :value="d.zone_city||''" @input="update('zone_city',$event.target.value)" class="w-full rounded-md border-gray-200 text-sm" /></div>
+                    <div><label class="block text-xs text-gray-600 mb-1">Ville</label>
+                    <select v-if="availableCities.length && !customCity" :value="d.zone_city||''" @change="if($event.target.value==='__other__'){customCity=true;update('zone_city','')}else{update('zone_city',$event.target.value)}" class="w-full rounded-md border-gray-200 text-sm">
+                        <option value="">Sélectionnez une ville</option>
+                        <option v-for="city in availableCities" :key="city" :value="city">{{ city }}</option>
+                        <option value="__other__">Autre ville…</option>
+                    </select>
+                    <div v-if="customCity || !availableCities.length">
+                        <input :value="d.zone_city||''" @input="update('zone_city',$event.target.value)" class="w-full rounded-md border-gray-200 text-sm" placeholder="Saisissez votre ville" />
+                        <button v-if="customCity && availableCities.length" type="button" class="mt-1 text-xs text-primary-600 hover:underline" @click="customCity=false;update('zone_city','')">Revenir à la liste</button>
+                    </div></div>
                 </div>
                 <div><label class="block text-xs text-gray-600 mb-1">Description rapide de l'idée (5-7 lignes max)</label><textarea :value="d.description||''" @input="update('description',$event.target.value)" rows="4" class="w-full rounded-md text-sm" :class="errClass('description')"></textarea><p v-if="hasErr('description')" class="mt-1 text-xs text-red-600">{{ errMsg('description') }}</p></div>
             </div>

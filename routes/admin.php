@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::put('applications/{application}/validate-step', [ApplicationController::class, 'validateStep'])->name('applications.validate-step');
         Route::put('applications/{application}/rework-step', [ApplicationController::class, 'reworkStep'])->name('applications.rework-step');
         Route::post('applications/{application}/comment', [ApplicationController::class, 'comment'])->name('applications.comment');
+        Route::post('applications/{application}/fast-forward', [ApplicationController::class, 'fastForward'])->name('applications.fast-forward');
 
         Route::resource('events', EventController::class)->except('show');
 

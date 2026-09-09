@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Notifications\AccountCreatedByAdmin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -58,11 +59,15 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
+        $plainPassword = $data['password'];
+        $data['password'] = Hash::make($plainPassword);
 
-        User::create($data);
+        $user = User::create($data);
 
-        return Redirect::route('admin.users.index')->with('success', 'Utilisateur créé avec succès.');
+        // Send welcome email with credentials
+        $user->notify(new AccountCreatedByAdmin($plainPassword));
+
+        return Redirect::route('admin.users.index')->with('success', 'Utilisateur créé avec succès. Un e-mail de bienvenue a été envoyé.');
     }
 
     public function edit(User $user): Response
