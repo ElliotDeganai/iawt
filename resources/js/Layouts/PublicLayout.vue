@@ -29,6 +29,8 @@ export default {
                 { label: 'Le parcours', href: route('journey.index'), active: route().current('journey.*') },
                 { label: 'Agenda', href: route('agenda.index'), active: route().current('agenda.*') },
                 { label: 'Galerie', href: route('gallery.index'), active: route().current('gallery.*') },
+                { label: 'Forum', href: route('forum.index'), active: route().current('forum.*') },
+                { label: 'Ressources', href: route('resources.index'), active: route().current('resources.*') },
                 { label: 'Candidater', href: route('application.index'), active: route().current('application.*') },
             ];
         },

@@ -41,6 +41,9 @@ export default {
                     items: [
                         { label: 'Pays', href: route('admin.countries.index'), active: route().current('admin.countries.*'), icon: 'globe', show: this.permissions.includes('countries.manage') },
                         { label: 'Types de lieux', href: route('admin.place-categories.index'), active: route().current('admin.place-categories.*'), icon: 'map', show: this.permissions.includes('countries.manage') },
+                        { label: 'Espaces du forum', href: route('admin.forum-channels.index'), active: route().current('admin.forum-channels.*'), icon: 'chat', show: this.permissions.includes('countries.manage') },
+                        { label: 'Catégories ressources', href: route('admin.resource-categories.index'), active: route().current('admin.resource-categories.*'), icon: 'folder', show: this.permissions.includes('countries.manage') },
+                        { label: 'Ressources', href: route('admin.resources.index'), active: route().current('admin.resources.*'), icon: 'document', show: this.permissions.includes('countries.manage') },
                         { label: 'Fiches pays (Étape 7)', href: route('admin.country-sheets.index'), active: route().current('admin.country-sheets.*'), icon: 'globe', show: this.permissions.includes('countries.manage') },
                         { label: 'Agenda', href: route('admin.events.index'), active: route().current('admin.events.*'), icon: 'calendar', show: this.permissions.includes('events.manage') },
                     ],

@@ -83,7 +83,7 @@ export default {
                         <td class="px-4 py-3 text-gray-800">
                             <span class="inline-flex items-center gap-2">
                                 <img v-if="c.flag_image" :src="`/storage/${c.flag_image}`" class="h-5 w-8 rounded object-cover" alt="" />
-                                <span v-else-if="c.flag_code" :class="`fi fi-${c.flag_code}`" class="h-5 w-8 rounded-sm"></span>
+                                <span v-else-if="c.flag_code" :class="`fi fi-${c.flag_code}`" class="h-5 w-7 rounded-sm"></span>
                                 <span v-else-if="c.flag_emoji">{{ c.flag_emoji }}</span>
                                 {{ c.name }}
                             </span>

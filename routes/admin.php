@@ -17,6 +17,9 @@ use App\Http\Controllers\Admin\StatController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CountrySheetController;
+use App\Http\Controllers\Admin\ForumChannelController;
+use App\Http\Controllers\Admin\ResourceCategoryController;
+use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +76,13 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         // Fast-forward parcours (dev/admin)
         Route::post('applications/{application}/fast-forward', [ApplicationController::class, 'fastForward'])->name('applications.fast-forward');
+
+        // Forum
+        Route::resource('forum-channels', ForumChannelController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        // Ressources documentaires
+        Route::resource('resource-categories', ResourceCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('resources', AdminResourceController::class)->except('show');
 
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');

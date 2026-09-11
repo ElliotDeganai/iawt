@@ -57,7 +57,7 @@ class CountrySheetController extends Controller
     {
         return $request->validate([
             'country_name'     => ['required', 'string', 'max:191'],
-            'flag_emoji'       => ['nullable', 'string', 'max:10'],
+            'flag_code'        => ['nullable', 'string', 'max:5'],
             'title'            => ['required', 'string', 'max:500'],
             'intro'            => ['nullable', 'string'],
             'warning'          => ['nullable', 'string'],

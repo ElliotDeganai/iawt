@@ -9,7 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JourneyController;
 use App\Http\Controllers\JourneyResponseController;
 use App\Http\Controllers\LegalPageController;
+use App\Http\Controllers\ForumController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -31,6 +33,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/pays-a-l-honneur', [CountryController::class, 'current'])->name('countries.current');
 Route::get('/pays-a-l-honneur/archives', [CountryController::class, 'index'])->name('countries.index');
 Route::get('/pays-a-l-honneur/{country}', [CountryController::class, 'show'])->name('countries.show');
+
+// Forum — Le coin des palabres
+Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
+Route::get('/forum/{channel:slug}', [ForumController::class, 'show'])->name('forum.channel');
+Route::get('/forum/{channel:slug}/{post}', [ForumController::class, 'showPost'])->name('forum.post');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/forum/{channel:slug}', [ForumController::class, 'store'])->name('forum.store');
+    Route::post('/forum/{channel:slug}/{post}/reply', [ForumController::class, 'reply'])->name('forum.reply');
+});
+
+// Ressources — Racines et ressources
+Route::get('/ressources', [ResourceController::class, 'index'])->name('resources.index');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

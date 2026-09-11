@@ -26,7 +26,6 @@ export default {
         },
         flagClass() {
             const code = this.visibleCountry?.flag_code;
-            return code ? `fi fi-${code}` : '';
         },
     },
     mounted() {
@@ -113,7 +112,7 @@ export default {
                                 <span
                                     v-if="c.flag_code"
                                     :class="`fi fi-${c.flag_code}`"
-                                    style="width:1.25rem;height:.875rem;border-radius:2px;display:inline-block;flex-shrink:0"
+                                    class="h-4 w-5 rounded-sm shrink-0"
                                 ></span>
                                 <span v-else class="text-base leading-none">{{ c.flag_emoji }}</span>
                                 <span class="truncate">{{ c.name }}</span>
@@ -131,7 +130,7 @@ export default {
                             <span
                                 v-if="visibleCountry.flag_code"
                                 :class="`fi fi-${visibleCountry.flag_code}`"
-                                style="width:2rem;height:1.3rem;border-radius:3px;display:inline-block;flex-shrink:0"
+                                class="h-6 w-8 rounded-sm shrink-0"
                             ></span>
                             <span v-else class="text-2xl">{{ visibleCountry.flag_emoji }}</span>
                             <div class="min-w-0">

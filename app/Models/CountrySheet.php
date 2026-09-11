@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CountrySheet extends Model
 {
     protected $fillable = [
-        'country_name', 'flag_emoji', 'title', 'intro', 'warning',
+        'country_name', 'flag_code', 'title', 'intro', 'warning',
         'actors', 'organism_name', 'organism_full', 'organism_desc',
         'organism_address', 'organism_hours', 'organism_website',
         'documents', 'individual_steps', 'company_steps',

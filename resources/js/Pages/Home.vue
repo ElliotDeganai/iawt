@@ -133,7 +133,7 @@ export default {
                 <p class="text-xs font-semibold uppercase tracking-widest text-gold-400">Le pays à l'honneur</p>
                 <h2 class="mt-2 flex items-center gap-3 font-serif text-3xl font-bold text-white">
                     <img v-if="featuredCountry.flag_image" :src="featuredCountry.flag_image" class="h-8 w-12 rounded object-cover shadow" alt="" />
-                    <span v-else-if="featuredCountry.flag">{{ featuredCountry.flag }}</span>
+                    <span v-else-if="featuredCountry.flag_code" :class="`fi fi-${featuredCountry.flag_code}`" class="h-7 w-10 rounded-sm"></span>
                     {{ featuredCountry.name }}
                 </h2>
                 <p class="mt-1 text-sm font-medium text-gold-300">{{ featuredCountry.tags }}</p>

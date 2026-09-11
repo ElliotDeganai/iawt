@@ -27,6 +27,8 @@ export default {
         application: Object,
         steps: Array,
         journeyResponses: Object,
+        userProfile: { type: Object, default: () => ({}) },
+        countrySheets: { type: Array, default: () => [] },
     },
     data() {
         return {

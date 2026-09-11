@@ -27,6 +27,7 @@ export default {
             const sheet = this.countrySheets.find(s => s.country_name === this.d.creation_country);
             if (!sheet) return null;
             return {
+                flag_code: sheet.flag_code,
                 title: sheet.title,
                 intro: sheet.intro,
                 warning: sheet.warning,
@@ -46,7 +47,7 @@ export default {
                 sector_auth: sheet.sector_auth,
             };
         },
-        countries() { return this.countrySheets.map(s => ({ code: s.flag_emoji || '🏳️', name: s.country_name })); },
+        countries() { return this.countrySheets.map(s => ({ flag_code: s.flag_code, name: s.country_name })); },
         preRequis() { return PRE_REQUIS; },
         trackSteps() {
             if (!this.countryData) return [];
@@ -105,7 +106,8 @@ export default {
             <div class="mb-4 border-l-[3px] border-primary-600 pl-3"><p class="text-xs font-medium text-primary-700">Pays d'immatriculation</p><p class="mt-0.5 text-[10px] text-gray-400">Sélectionnez le pays. La fiche technique des démarches s'affiche automatiquement.</p></div>
             <div class="flex flex-wrap gap-2" :class="hasErr('creation_country') ? 'rounded-lg border border-red-300 bg-red-50/50 p-2' : ''">
                 <button v-for="c in countries" :key="c.name" type="button" class="flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition" :class="d.creation_country===c.name?'border-primary-600 bg-primary-50 text-primary-700 font-medium':'border-gray-200 text-gray-600 hover:border-primary-300'" @click="update('creation_country',c.name)">
-                    <span class="text-lg">{{ c.code }}</span>{{ c.name }}
+                    <span v-if="c.flag_code" :class="`fi fi-${c.flag_code}`" class="h-5 w-7 rounded-sm shrink-0"></span>
+                    {{ c.name }}
                 </button>
             </div>
             <p v-if="hasErr('creation_country')" class="mt-2 text-xs text-red-600">{{ errMsg('creation_country') }}</p>
@@ -116,7 +118,10 @@ export default {
             <div class="rounded-xl border-2 border-primary-200 bg-white overflow-hidden">
                 <!-- Header -->
                 <div class="bg-primary-800 px-5 py-4">
-                    <p class="font-serif text-lg text-white">{{ countryData.title || ('Fiche technique — ' + d.creation_country) }}</p>
+                    <p class="font-serif text-lg text-white flex items-center gap-3">
+                        <span v-if="countryData.flag_code" :class="`fi fi-${countryData.flag_code}`" class="h-7 w-10 rounded-sm"></span>
+                        {{ countryData.title || ('Fiche technique — ' + d.creation_country) }}
+                    </p>
                     <p class="mt-1 text-xs text-primary-200 leading-relaxed">{{ countryData.intro }}</p>
                 </div>
 

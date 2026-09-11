@@ -60,7 +60,6 @@ export default {
         },
         galleryPhotos() { return (this.country.media || []).filter((m) => m.type === 'photo'); },
         galleryVideos() { return (this.country.media || []).filter((m) => m.type === 'video'); },
-        flagClass() { return this.country.flag_code ? `fi fi-${this.country.flag_code}` : ''; },
         lightboxPhoto() { return this.lightbox ? this.lightbox.photos[this.lightbox.index] : null; },
     },
     mounted() {
@@ -105,7 +104,7 @@ export default {
                         <p class="mb-2 text-[10px] font-medium uppercase tracking-widest text-gold-400 capitalize">{{ formatMonth(country.featured_month) }} · Pays à l'honneur</p>
                         <h1 class="mb-1 flex items-center gap-3 font-serif text-3xl font-normal text-white">
                             <img v-if="country.flag_image" :src="`/storage/${country.flag_image}`" class="h-7 w-11 rounded object-cover" alt="" />
-                            <span v-else-if="country.flag_code" :class="flagClass" style="width:2.75rem;height:1.75rem;border-radius:3px;display:inline-block;flex-shrink:0;"></span>
+                            <span v-else-if="country.flag_code" :class="`fi fi-${country.flag_code}`" class="h-7 w-10 rounded-sm"></span>
                             <span v-else-if="country.flag_emoji">{{ country.flag_emoji }}</span>
                             {{ country.name }}
                         </h1>
