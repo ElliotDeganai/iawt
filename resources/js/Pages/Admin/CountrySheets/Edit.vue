@@ -1,0 +1,147 @@
+<script>
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
+import TextInput from '@/Components/TextInput.vue';
+import Checkbox from '@/Components/Checkbox.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+
+export default {
+    components: { AdminLayout, InputLabel, InputError, TextInput, Checkbox, PrimaryButton, SecondaryButton, Head, Link },
+    props: { sheet: Object },
+    data() {
+        const s = this.sheet || {};
+        return {
+            isEdit: !!this.sheet,
+            form: useForm({
+                country_name:     s.country_name ?? '',
+                flag_emoji:       s.flag_emoji ?? '',
+                title:            s.title ?? '',
+                intro:            s.intro ?? '',
+                warning:          s.warning ?? 'Les informations de cette fiche peuvent évoluer : elle est un point de départ, pas une source immuable.',
+                actors:           s.actors ?? [],
+                organism_name:    s.organism_name ?? '',
+                organism_full:    s.organism_full ?? '',
+                organism_desc:    s.organism_desc ?? '',
+                organism_address: s.organism_address ?? '',
+                organism_hours:   s.organism_hours ?? '',
+                organism_website: s.organism_website ?? '',
+                documents:        s.documents ?? [],
+                individual_steps: s.individual_steps ?? [],
+                company_steps:    s.company_steps ?? [],
+                fees:             s.fees ?? '',
+                sector_auth:      s.sector_auth ?? '',
+                is_published:     s.is_published ?? true,
+            }),
+        };
+    },
+    methods: {
+        addActor() { this.form.actors.push({ name: '', role: '' }); },
+        removeActor(i) { this.form.actors.splice(i, 1); },
+        addDoc() { this.form.documents.push(''); },
+        removeDoc(i) { this.form.documents.splice(i, 1); },
+        addIndStep() { this.form.individual_steps.push(''); },
+        removeIndStep(i) { this.form.individual_steps.splice(i, 1); },
+        addCoStep() { this.form.company_steps.push(''); },
+        removeCoStep(i) { this.form.company_steps.splice(i, 1); },
+        submit() {
+            if (this.isEdit) {
+                this.form.transform(d => ({ ...d, _method: 'put' })).post(route('admin.country-sheets.update', this.sheet.id));
+            } else {
+                this.form.post(route('admin.country-sheets.store'));
+            }
+        },
+    },
+};
+</script>
+<template>
+    <Head :title="isEdit ? 'Modifier — ' + form.country_name : 'Nouvelle fiche pays'" />
+    <AdminLayout>
+        <template #header><h1 class="text-lg font-semibold text-gray-800">{{ isEdit ? 'Modifier « ' + sheet.country_name + ' »' : 'Nouvelle fiche pays' }}</h1></template>
+        <form class="max-w-3xl space-y-6" @submit.prevent="submit">
+
+            <!-- Identité -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <h2 class="font-medium text-gray-800">Identité</h2>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="sm:col-span-2"><InputLabel value="Nom du pays (ex: RCA)" /><TextInput v-model="form.country_name" class="mt-1 w-full" required /><InputError class="mt-1" :message="form.errors.country_name" /></div>
+                    <div><InputLabel value="Emoji drapeau" /><TextInput v-model="form.flag_emoji" class="mt-1 w-full" placeholder="🇨🇫" /><InputError class="mt-1" :message="form.errors.flag_emoji" /></div>
+                </div>
+                <div><InputLabel value="Titre de la fiche" /><TextInput v-model="form.title" class="mt-1 w-full" required /><InputError class="mt-1" :message="form.errors.title" /></div>
+                <div><InputLabel value="Introduction" /><textarea v-model="form.intro" rows="3" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+                <div><InputLabel value="Avertissement" /><textarea v-model="form.warning" rows="2" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+                <label class="flex items-center gap-2"><Checkbox v-model:checked="form.is_published" /><span class="text-sm text-gray-700">Publié</span></label>
+            </div>
+
+            <!-- Carte des acteurs -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">Carte des acteurs</h2><SecondaryButton type="button" @click="addActor">Ajouter</SecondaryButton></div>
+                <div v-for="(a, i) in form.actors" :key="i" class="flex gap-2 rounded-md border border-gray-100 p-2">
+                    <TextInput v-model="a.name" placeholder="Organisme" class="w-1/3" />
+                    <TextInput v-model="a.role" placeholder="Rôle" class="flex-1" />
+                    <button type="button" class="text-red-600 text-xs px-2" @click="removeActor(i)"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <p v-if="!form.actors.length" class="text-sm text-gray-400">Aucun acteur.</p>
+            </div>
+
+            <!-- Organisme compétent -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <h2 class="font-medium text-gray-800">Organisme compétent</h2>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div><InputLabel value="Nom court" /><TextInput v-model="form.organism_name" class="mt-1 w-full" placeholder="GUFE" /></div>
+                    <div><InputLabel value="Nom complet" /><TextInput v-model="form.organism_full" class="mt-1 w-full" /></div>
+                </div>
+                <div><InputLabel value="Description" /><textarea v-model="form.organism_desc" rows="2" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div><InputLabel value="Adresse" /><TextInput v-model="form.organism_address" class="mt-1 w-full" /></div>
+                    <div><InputLabel value="Horaires" /><TextInput v-model="form.organism_hours" class="mt-1 w-full" /></div>
+                    <div><InputLabel value="Site web" /><TextInput v-model="form.organism_website" class="mt-1 w-full" /></div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">Documents à préparer</h2><SecondaryButton type="button" @click="addDoc">Ajouter</SecondaryButton></div>
+                <div v-for="(d, i) in form.documents" :key="i" class="flex gap-2">
+                    <TextInput :model-value="d" @update:model-value="form.documents[i] = $event" class="flex-1" placeholder="Document requis" />
+                    <button type="button" class="text-red-600 text-xs px-2" @click="removeDoc(i)"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <p v-if="!form.documents.length" class="text-sm text-gray-400">Aucun document.</p>
+            </div>
+
+            <!-- Parcours individuel -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">Parcours A — Individuel</h2><SecondaryButton type="button" @click="addIndStep">Ajouter</SecondaryButton></div>
+                <div v-for="(s, i) in form.individual_steps" :key="i" class="flex gap-2 items-center">
+                    <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[9px] font-bold text-primary-700">{{ i + 1 }}</span>
+                    <TextInput :model-value="s" @update:model-value="form.individual_steps[i] = $event" class="flex-1" />
+                    <button type="button" class="text-red-600 text-xs px-2" @click="removeIndStep(i)"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+            </div>
+
+            <!-- Parcours société -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">Parcours B — Société</h2><SecondaryButton type="button" @click="addCoStep">Ajouter</SecondaryButton></div>
+                <div v-for="(s, i) in form.company_steps" :key="i" class="flex gap-2 items-center">
+                    <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[9px] font-bold text-primary-700">{{ i + 1 }}</span>
+                    <TextInput :model-value="s" @update:model-value="form.company_steps[i] = $event" class="flex-1" />
+                    <button type="button" class="text-red-600 text-xs px-2" @click="removeCoStep(i)"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+            </div>
+
+            <!-- Frais & Autorisations -->
+            <div class="rounded-lg bg-white p-6 shadow space-y-4">
+                <h2 class="font-medium text-gray-800">Frais & Autorisations</h2>
+                <div><InputLabel value="Frais de création" /><textarea v-model="form.fees" rows="2" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+                <div><InputLabel value="Autorisations sectorielles" /><textarea v-model="form.sector_auth" rows="3" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <PrimaryButton :disabled="form.processing">{{ isEdit ? 'Enregistrer' : 'Créer' }}</PrimaryButton>
+                <Link :href="route('admin.country-sheets.index')" class="text-sm text-gray-600 hover:underline">Annuler</Link>
+            </div>
+        </form>
+    </AdminLayout>
+</template>

@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StatController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CountrySheetController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,7 +60,6 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::put('applications/{application}/validate-step', [ApplicationController::class, 'validateStep'])->name('applications.validate-step');
         Route::put('applications/{application}/rework-step', [ApplicationController::class, 'reworkStep'])->name('applications.rework-step');
         Route::post('applications/{application}/comment', [ApplicationController::class, 'comment'])->name('applications.comment');
-        Route::post('applications/{application}/fast-forward', [ApplicationController::class, 'fastForward'])->name('applications.fast-forward');
 
         Route::resource('events', EventController::class)->except('show');
 
@@ -67,6 +67,12 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::post('event-categories', [EventCategoryController::class, 'store'])->name('event-categories.store');
         Route::put('event-categories/{eventCategory}', [EventCategoryController::class, 'update'])->name('event-categories.update');
         Route::delete('event-categories/{eventCategory}', [EventCategoryController::class, 'destroy'])->name('event-categories.destroy');
+
+        // Fiches techniques pays (Étape 7)
+        Route::resource('country-sheets', CountrySheetController::class)->except('show');
+
+        // Fast-forward parcours (dev/admin)
+        Route::post('applications/{application}/fast-forward', [ApplicationController::class, 'fastForward'])->name('applications.fast-forward');
 
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');

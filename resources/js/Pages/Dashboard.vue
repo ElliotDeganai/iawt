@@ -319,7 +319,7 @@ export default {
                                 </div>
                             </div>
 
-                            <component :is="'Step'+(i+1)+'Form'" :model-value="stepData[i+1]" :errors="stepErrors" @update:model-value="updateStepData(i+1,$event)" />
+                            <component :is="'Step'+(i+1)+'Form'" :model-value="stepData[i+1]" :errors="stepErrors" :country-sheets="countrySheets" @update:model-value="updateStepData(i+1,$event)" />
                             <div class="mt-6 border-t border-gray-100 pt-5">
                                 <div v-if="Object.keys(stepErrors).length" class="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5">
                                     <svg class="h-4 w-4 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86l-8.58 14.88A1 1 0 002.58 20h18.84a1 1 0 00.86-1.26L13.71 3.86a1 1 0 00-1.72 0z"/></svg>
