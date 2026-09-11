@@ -12,7 +12,7 @@ echo "→ Récupération des derniers changements..."
 git pull origin main
 
 echo "→ Installation des dépendances PHP..."
-composer install --optimize-autoloader --no-dev
+php8.2 /usr/local/bin/php8.2 /usr/local/bin/composer install --optimize-autoloader --no-dev
 
 echo "→ Installation des dépendances JS..."
 npm install
