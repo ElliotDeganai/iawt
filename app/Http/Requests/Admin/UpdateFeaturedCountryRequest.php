@@ -18,6 +18,7 @@ class UpdateFeaturedCountryRequest extends FormRequest
             'name' => ['required', 'string', 'max:191'],
             'slug' => ['required', 'string', 'max:191', 'alpha_dash', Rule::unique('featured_countries', 'slug')->ignore($this->route('country'))],
             'flag_emoji' => ['nullable', 'string', 'max:10'],
+            'flag_code'  => ['nullable', 'string', 'max:5'],
             'flag_image' => ['nullable', 'file', 'mimes:svg,png,jpg,jpeg,webp'],
             'tags' => ['nullable', 'string', 'max:191'],
             'summary' => ['nullable', 'string', 'max:500'],

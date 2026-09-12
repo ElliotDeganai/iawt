@@ -8,6 +8,7 @@ import FlagPicker from '@/Components/FlagPicker.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { AFRICAN_COUNTRIES } from '@/Data/africanCountries';
 
 const AFRICAN_FLAGS = {
     dz: 'Algérie', ao: 'Angola', bj: 'Bénin', bw: 'Botswana',
@@ -31,6 +32,7 @@ export default {
     data() {
         return {
             africanFlags: AFRICAN_FLAGS,
+            africanCountries: AFRICAN_COUNTRIES,
             slugTouched: false,
             coverPreview: null,
             mapPreview: null,
@@ -50,10 +52,21 @@ export default {
             }),
         };
     },
+    computed: {
+        nameToCode() {
+            const map = {};
+            for (const [code, name] of Object.entries(this.africanFlags)) map[name] = code;
+            return map;
+        },
+    },
     watch: {
-        'form.name'(value) {
+        'form.name'(name) {
             if (!this.slugTouched) {
-                this.form.slug = value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                this.form.slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            }
+            if (name && this.nameToCode[name]) {
+                this.form.flag_code = this.nameToCode[name];
+                this.mapFallbackError = false;
             }
         },
     },
@@ -82,8 +95,25 @@ export default {
         <form class="max-w-3xl space-y-6" enctype="multipart/form-data" @submit.prevent="submit">
             <div class="bg-white rounded-lg shadow p-6 space-y-4">
                 <h2 class="font-medium text-gray-800">Informations générales</h2>
-                <div class="grid grid-cols-1 gap-4"><div><InputLabel value="Nom du pays" /><TextInput v-model="form.name" class="mt-1" required autofocus /><InputError class="mt-2" :message="form.errors.name" /></div></div>
-                <div><InputLabel value="Drapeau" /><FlagPicker v-model="form.flag_code" :flags="africanFlags" class="mt-1" /><InputError class="mt-2" :message="form.errors.flag_code" /></div>
+                <div>
+                    <InputLabel value="Nom du pays" />
+                    <select v-model="form.name" class="mt-1 w-full rounded-md border-gray-300 text-sm" required>
+                        <option value="">Sélectionnez un pays</option>
+                        <option v-for="co in africanCountries" :key="co.name" :value="co.name">{{ co.name }}</option>
+                    </select>
+                    <InputError class="mt-2" :message="form.errors.name" />
+                </div>
+                <div>
+                    <InputLabel value="Drapeau" />
+                    <div v-if="form.flag_code" class="mb-2 inline-flex items-center gap-2 rounded-full border-2 border-green-500 bg-green-50 px-4 py-2">
+                        <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span :class="`fi fi-${form.flag_code}`" class="h-5 w-7 rounded-sm"></span>
+                        <span class="text-sm font-medium text-green-800">{{ africanFlags[form.flag_code] || form.flag_code }}</span>
+                        <button type="button" class="ml-1 text-green-400 hover:text-red-500" @click="form.flag_code = null"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                    </div>
+                    <FlagPicker v-model="form.flag_code" :flags="africanFlags" class="mt-1" />
+                    <InputError class="mt-2" :message="form.errors.flag_code" />
+                </div>
                 <div>
                     <InputLabel value="Ou importer un drapeau personnalisé (si le pays n'est pas dans la liste)" />
                     <div class="mt-2 flex items-center gap-4"><img v-if="flagPreview" :src="flagPreview" class="h-10 w-14 rounded border border-gray-200 object-cover" /><input type="file" accept="image/*,.svg" class="text-sm" @change="onFlagChange" /></div>
@@ -167,7 +197,7 @@ export default {
             </div>
 
             <div v-for="(label, key) in placeCategories" :key="key" class="bg-white rounded-lg shadow p-6 space-y-4">
-                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">{{ label }}</h2><SecondaryButton type="button" @click="addPlace(key)">Ajouter un lieu</SecondaryButton></div>
+                <div class="flex items-center justify-between"><h2 class="font-medium text-gray-800">{{ typeof label === 'object' ? label.name : label }}</h2><SecondaryButton type="button" @click="addPlace(key)">Ajouter un lieu</SecondaryButton></div>
                 <div v-for="(p, i) in form.places[key]" :key="i" class="flex gap-3 rounded-md border border-gray-100 p-3">
                     <div class="flex-1 space-y-2"><TextInput v-model="p.name" placeholder="Nom du lieu" /><textarea v-model="p.description" rows="2" placeholder="Description" class="w-full rounded-md border-gray-300 text-sm" /><TextInput v-model="p.link" placeholder="Lien ou adresse (optionnel)" /></div>
                     <button type="button" class="text-red-600 text-sm" @click="removePlace(key, i)">Retirer</button>
