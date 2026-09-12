@@ -61,11 +61,15 @@ export default {
         recommendation: {
             handler(recs) {
                 if (recs.length >= 1) {
-                    this.$emit('update:modelValue', {
-                        ...this.d,
-                        legal_form: recs[0].label,
-                        legal_form_2: recs.length >= 2 ? recs[1].label : '',
-                    });
+                    const newForm = recs[0].label;
+                    const newForm2 = recs.length >= 2 ? recs[1].label : '';
+                    if (this.d.legal_form !== newForm || this.d.legal_form_2 !== newForm2) {
+                        this.$emit('update:modelValue', {
+                            ...this.d,
+                            legal_form: newForm,
+                            legal_form_2: newForm2,
+                        });
+                    }
                 }
             },
             deep: true,
