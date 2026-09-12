@@ -6,6 +6,7 @@ use App\Models\Resource;
 use App\Models\ResourceCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ class ResourceController extends Controller
     {
         return Inertia::render('Admin/Resources/Index', [
             'categories' => ResourceCategory::orderBy('sort_order')->withCount('resources')->get(),
-            'resources'  => Resource::with('category')->latest()->get(),
+            'resources'  => Resource::with(['category', 'user:id,first_name,last_name'])->latest()->get(),
         ]);
     }
 
@@ -31,15 +32,8 @@ class ResourceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'category_id'  => ['required', 'exists:resource_categories,id'],
-            'title'        => ['required', 'string', 'max:255'],
-            'description'  => ['nullable', 'string'],
-            'type'         => ['required', 'in:pdf,link,video,template'],
-            'url'          => ['nullable', 'url'],
-            'file'         => ['nullable', 'file', 'max:20480'],
-            'is_published' => ['boolean'],
-        ]);
+        $data = $this->validated($request);
+        $data['user_id'] = Auth::id();
 
         if ($request->hasFile('file')) {
             $data['file_path'] = $request->file('file')->store('resources', 'public');
@@ -60,15 +54,7 @@ class ResourceController extends Controller
 
     public function update(Request $request, Resource $resource): RedirectResponse
     {
-        $data = $request->validate([
-            'category_id'  => ['required', 'exists:resource_categories,id'],
-            'title'        => ['required', 'string', 'max:255'],
-            'description'  => ['nullable', 'string'],
-            'type'         => ['required', 'in:pdf,link,video,template'],
-            'url'          => ['nullable', 'url'],
-            'file'         => ['nullable', 'file', 'max:20480'],
-            'is_published' => ['boolean'],
-        ]);
+        $data = $this->validated($request);
 
         if ($request->hasFile('file')) {
             if ($resource->file_path) Storage::disk('public')->delete($resource->file_path);
@@ -85,5 +71,18 @@ class ResourceController extends Controller
         if ($resource->file_path) Storage::disk('public')->delete($resource->file_path);
         $resource->delete();
         return Redirect::route('admin.resources.index')->with('success', 'Ressource supprimée.');
+    }
+
+    private function validated(Request $request): array
+    {
+        return $request->validate([
+            'category_id'  => ['required', 'exists:resource_categories,id'],
+            'title'        => ['required', 'string', 'max:255'],
+            'description'  => ['nullable', 'string'],
+            'type'         => ['required', 'in:pdf,link,video,template'],
+            'url'          => ['nullable', 'url'],
+            'file'         => ['nullable', 'file', 'max:204800', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,mp4,mov,avi,wmv,webm,mkv,mp3,wav,ogg,jpg,jpeg,png,gif,svg,zip'],
+            'is_published' => ['boolean'],
+        ]);
     }
 }

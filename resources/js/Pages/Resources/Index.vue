@@ -18,13 +18,23 @@ export default {
     props: { categories: Array },
     data() { return { activeCategory: null }; },
     computed: {
-        visibleCategories() {
-            if (!this.activeCategory) return this.categories;
-            return this.categories.filter(c => c.id === this.activeCategory);
+        allResources() {
+            const list = [];
+            for (const cat of this.categories) {
+                for (const res of (cat.resources || [])) {
+                    list.push({ ...res, category: cat });
+                }
+            }
+            if (this.activeCategory) return list.filter(r => r.category_id === this.activeCategory);
+            return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         },
     },
     methods: {
         iconPath(name) { return ICONS[name] || ICONS.book; },
+        typeLabel(t) { return { pdf: 'PDF', video: 'Vidéo', link: 'Lien', template: 'Modèle' }[t] || t; },
+        typeColor(t) { return { pdf: 'bg-red-50 text-red-600 border-red-100', video: 'bg-purple-50 text-purple-600 border-purple-100', link: 'bg-primary-50 text-primary-600 border-primary-100', template: 'bg-green-50 text-green-600 border-green-100' }[t] || 'bg-gray-50 text-gray-600 border-gray-100'; },
+        resourceUrl(r) { return r.file_path ? `/storage/${r.file_path}` : r.url; },
+        formatDate(d) { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); },
     },
 };
 </script>
@@ -42,33 +52,48 @@ export default {
         <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
             <!-- Category filter pills -->
             <div class="mb-6 flex flex-wrap gap-2">
-                <button type="button" class="rounded-full border px-3 py-1.5 text-xs transition" :class="!activeCategory ? 'border-primary-600 bg-primary-50 text-primary-700 font-medium' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="activeCategory = null">Tout</button>
-                <button v-for="cat in categories" :key="cat.id" type="button" class="rounded-full border px-3 py-1.5 text-xs transition" :class="activeCategory === cat.id ? 'border-primary-600 bg-primary-50 text-primary-700 font-medium' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="activeCategory = activeCategory === cat.id ? null : cat.id">{{ cat.name }}</button>
+                <button type="button" class="rounded-full border px-3 py-1.5 text-xs transition" :class="!activeCategory ? 'border-primary-600 bg-primary-50 text-primary-700 font-medium' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="activeCategory = null">Toutes les catégories</button>
+                <button v-for="cat in categories" :key="cat.id" type="button" class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition" :class="activeCategory === cat.id ? 'border-primary-600 bg-primary-50 text-primary-700 font-medium' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="activeCategory = activeCategory === cat.id ? null : cat.id">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path :d="iconPath(cat.icon)" /></svg>
+                    {{ cat.name }}
+                    <span class="rounded-full bg-gray-200 px-1.5 py-0.5 text-[9px] font-bold text-gray-600">{{ cat.resources?.length || 0 }}</span>
+                </button>
             </div>
 
-            <!-- Categories -->
-            <div class="space-y-6">
-                <div v-for="cat in visibleCategories" :key="cat.id" class="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
-                    <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-cream/50">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50">
-                            <svg class="h-5 w-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path :d="iconPath(cat.icon)" /></svg>
+            <!-- Resources list -->
+            <div class="space-y-2">
+                <a v-for="res in allResources" :key="res.id" :href="resourceUrl(res)" target="_blank" rel="noopener" class="flex items-center gap-4 rounded-xl border border-gray-100 bg-white px-5 py-4 shadow-sm hover:shadow-md transition group">
+                    <!-- Type badge -->
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border" :class="typeColor(res.type)">
+                        <svg v-if="res.type === 'video'" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg v-else-if="res.type === 'link'" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg v-else-if="res.type === 'pdf'" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-sm font-semibold text-gray-800 group-hover:text-primary-700 transition">{{ res.title }}</h3>
+                            <span class="rounded-full border px-2 py-0.5 text-[9px] font-medium" :class="typeColor(res.type)">{{ typeLabel(res.type) }}</span>
                         </div>
-                        <div>
-                            <h2 class="text-base font-semibold text-gray-800">{{ cat.name }}</h2>
-                            <p class="text-xs text-gray-500">{{ cat.description }}</p>
+                        <p v-if="res.description" class="mt-0.5 text-xs text-gray-500 line-clamp-1">{{ res.description }}</p>
+                        <div class="mt-1.5 flex items-center gap-3 text-[10px] text-gray-400">
+                            <span class="inline-flex items-center gap-1">
+                                <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path :d="iconPath(res.category?.icon)" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                {{ res.category?.name }}
+                            </span>
+                            <span v-if="res.user">par {{ res.user.first_name }} {{ res.user.last_name }}</span>
+                            <span>{{ formatDate(res.created_at) }}</span>
                         </div>
                     </div>
-                    <div v-if="cat.resources?.length" class="divide-y divide-gray-50">
-                        <a v-for="res in cat.resources" :key="res.id" :href="res.file_path ? `/storage/${res.file_path}` : res.url" target="_blank" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/80 transition group">
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold" :class="res.type === 'pdf' ? 'bg-red-50 text-red-600' : res.type === 'video' ? 'bg-purple-50 text-purple-600' : res.type === 'template' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-500'">{{ res.type === 'pdf' ? 'PDF' : res.type === 'video' ? '▶' : res.type === 'template' ? '📄' : '🔗' }}</span>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 group-hover:text-primary-700 transition">{{ res.title }}</p>
-                                <p v-if="res.description" class="text-xs text-gray-400 truncate">{{ res.description }}</p>
-                            </div>
-                            <svg class="h-4 w-4 text-gray-300 group-hover:text-primary-500 transition shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </a>
-                    </div>
-                    <div v-else class="px-5 py-6 text-center text-sm text-gray-400">Contenu à venir prochainement.</div>
+
+                    <!-- Arrow -->
+                    <svg class="h-4 w-4 text-gray-300 group-hover:text-primary-500 transition shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+
+                <div v-if="!allResources.length" class="rounded-xl border border-dashed border-gray-300 py-12 text-center">
+                    <p class="text-sm text-gray-400">Aucune ressource dans cette catégorie.</p>
                 </div>
             </div>
         </div>

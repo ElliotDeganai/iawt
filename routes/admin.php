@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CountrySheetController;
 use App\Http\Controllers\Admin\ForumChannelController;
+use App\Http\Controllers\Admin\ForumModerationController;
 use App\Http\Controllers\Admin\ResourceCategoryController;
 use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\EventCategoryController;
@@ -79,6 +80,11 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         // Forum
         Route::resource('forum-channels', ForumChannelController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('forum-moderation', [ForumModerationController::class, 'index'])->name('forum-moderation.index');
+        Route::put('forum-moderation/{post}/approve', [ForumModerationController::class, 'approve'])->name('forum-moderation.approve');
+        Route::put('forum-moderation/{post}/hide', [ForumModerationController::class, 'hide'])->name('forum-moderation.hide');
+        Route::put('forum-moderation/{post}/pin', [ForumModerationController::class, 'togglePin'])->name('forum-moderation.pin');
+        Route::delete('forum-moderation/{post}', [ForumModerationController::class, 'destroy'])->name('forum-moderation.destroy');
 
         // Ressources documentaires
         Route::resource('resource-categories', ResourceCategoryController::class)->only(['index', 'store', 'update', 'destroy']);

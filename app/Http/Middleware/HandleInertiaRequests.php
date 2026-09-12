@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Models\Application;
+use App\Models\ForumPost;
 use App\Models\Setting;
 
 class HandleInertiaRequests extends Middleware

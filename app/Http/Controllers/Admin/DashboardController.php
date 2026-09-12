@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\ForumPost;
 use App\Models\JourneyResponse;
 use App\Models\Role;
 use App\Models\User;

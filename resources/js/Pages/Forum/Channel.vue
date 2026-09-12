@@ -1,8 +1,9 @@
 <script>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import RichTextEditor from '@/Components/RichTextEditor.vue';
 export default {
-    components: { PublicLayout, Head, Link },
+    components: { PublicLayout, Head, Link, RichTextEditor },
     props: { channel: Object, posts: Object },
     data() {
         return {
@@ -49,6 +50,11 @@ export default {
         </section>
 
         <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+            <!-- Flash -->
+            <div v-if="$page.props.flash?.success" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-3 flex items-center gap-3">
+                <svg class="h-5 w-5 shrink-0 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <p class="text-sm text-green-700">{{ $page.props.flash.success }}</p>
+            </div>
             <!-- New post button -->
             <button v-if="!showForm && $page.props.auth?.user" type="button" class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 transition" @click="showForm = true">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
@@ -58,7 +64,7 @@ export default {
             <!-- New post form -->
             <form v-if="showForm" class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4" @submit.prevent="submit">
                 <input v-model="form.title" type="text" class="w-full rounded-lg border-gray-200 text-sm font-medium" placeholder="Titre du sujet" />
-                <textarea v-model="form.body" rows="4" class="w-full rounded-lg border-gray-200 text-sm" placeholder="Votre message…"></textarea>
+                <RichTextEditor v-model="form.body" placeholder="Votre message…" min-height="120px" />
                 <div class="flex flex-wrap items-center gap-3">
                     <label class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/></svg>
@@ -90,9 +96,11 @@ export default {
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
                                 <span v-if="p.is_pinned" class="text-gold-500 text-xs">📌</span>
-                                <h3 class="text-sm font-semibold text-gray-800 group-hover:text-primary-700 transition">{{ p.title }}</h3>
+                                <span v-if="p.status === 'pending'" class="rounded-full bg-amber-100 border border-amber-200 px-2 py-0.5 text-[9px] font-medium text-amber-700">En attente de validation</span>
+                                <span v-if="p.status === 'hidden'" class="rounded-full bg-red-50 border border-red-200 px-2 py-0.5 text-[9px] font-medium text-red-600">Masqué par un modérateur</span>
+                                <h3 class="text-sm font-semibold text-gray-800 group-hover:text-primary-700 transition" :class="p.status !== 'approved' ? 'opacity-60' : ''">{{ p.title }}</h3>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500 line-clamp-2">{{ p.body }}</p>
+                            <div class="mt-1 text-xs text-gray-500 line-clamp-2 prose prose-sm max-w-none" v-html="p.body"></div>
                             <div class="mt-2 flex items-center gap-3 text-[10px] text-gray-400">
                                 <span class="font-medium text-gray-600">{{ p.user?.first_name }} {{ p.user?.last_name }}</span>
                                 <span>{{ timeAgo(p.created_at) }}</span>

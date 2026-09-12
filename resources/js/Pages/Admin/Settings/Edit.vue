@@ -19,6 +19,7 @@ export default {
                 tagline: this.settings.tagline,
                 contact_email: this.settings.contact_email,
                 description: this.settings.description,
+                forum_moderation_mode: this.settings.forum_moderation_mode || 'strict',
                 logo: null,
             }),
         };
@@ -88,6 +89,22 @@ export default {
                 <InputLabel value="Description" />
                 <textarea v-model="form.description" rows="4" class="mt-1 w-full rounded-md border-gray-300 text-sm" />
                 <InputError class="mt-2" :message="form.errors.description" />
+            </div>
+
+            <!-- Modération forum -->
+            <div class="border-t border-gray-200 pt-4">
+                <InputLabel value="Modération du forum" />
+                <p class="mt-1 text-xs text-gray-500 mb-3">Détermine si les publications du forum nécessitent une validation avant d'être visibles.</p>
+                <div class="flex gap-3">
+                    <label class="flex-1 cursor-pointer rounded-xl border-2 p-4 transition" :class="form.forum_moderation_mode === 'strict' ? 'border-primary-600 bg-primary-50' : 'border-gray-200 hover:border-gray-300'" @click="form.forum_moderation_mode = 'strict'">
+                        <p class="text-sm font-semibold" :class="form.forum_moderation_mode === 'strict' ? 'text-primary-700' : 'text-gray-700'">Modération stricte</p>
+                        <p class="mt-1 text-xs text-gray-500">Chaque publication doit être approuvée par un administrateur avant d'être visible.</p>
+                    </label>
+                    <label class="flex-1 cursor-pointer rounded-xl border-2 p-4 transition" :class="form.forum_moderation_mode === 'soft' ? 'border-primary-600 bg-primary-50' : 'border-gray-200 hover:border-gray-300'" @click="form.forum_moderation_mode = 'soft'">
+                        <p class="text-sm font-semibold" :class="form.forum_moderation_mode === 'soft' ? 'text-primary-700' : 'text-gray-700'">Modération souple</p>
+                        <p class="mt-1 text-xs text-gray-500">Les publications sont visibles immédiatement. L'admin peut masquer ou supprimer a posteriori.</p>
+                    </label>
+                </div>
             </div>
 
             <div class="flex items-center gap-4 pt-2">

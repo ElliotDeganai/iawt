@@ -34,17 +34,15 @@ Route::get('/pays-a-l-honneur', [CountryController::class, 'current'])->name('co
 Route::get('/pays-a-l-honneur/archives', [CountryController::class, 'index'])->name('countries.index');
 Route::get('/pays-a-l-honneur/{country}', [CountryController::class, 'show'])->name('countries.show');
 
-// Forum — Le coin des palabres
-Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
-Route::get('/forum/{channel:slug}', [ForumController::class, 'show'])->name('forum.channel');
-Route::get('/forum/{channel:slug}/{post}', [ForumController::class, 'showPost'])->name('forum.post');
+// Forum & Ressources — réservés aux utilisateurs connectés
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
+    Route::get('/forum/{channel:slug}', [ForumController::class, 'show'])->name('forum.channel');
+    Route::get('/forum/{channel:slug}/{post}', [ForumController::class, 'showPost'])->name('forum.post');
     Route::post('/forum/{channel:slug}', [ForumController::class, 'store'])->name('forum.store');
     Route::post('/forum/{channel:slug}/{post}/reply', [ForumController::class, 'reply'])->name('forum.reply');
+    Route::get('/ressources', [ResourceController::class, 'index'])->name('resources.index');
 });
-
-// Ressources — Racines et ressources
-Route::get('/ressources', [ResourceController::class, 'index'])->name('resources.index');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

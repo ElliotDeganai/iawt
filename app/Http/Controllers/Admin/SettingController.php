@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    protected array $keys = ['site_name', 'tagline', 'contact_email', 'description'];
+    protected array $keys = ['site_name', 'tagline', 'contact_email', 'description', 'forum_moderation_mode'];
 
     public function __construct()
     {
@@ -37,6 +37,7 @@ class SettingController extends Controller
             'tagline'       => ['nullable', 'string', 'max:191'],
             'contact_email' => ['required', 'email', 'max:191'],
             'description'   => ['nullable', 'string', 'max:1000'],
+            'forum_moderation_mode' => ['nullable', 'in:strict,soft'],
             'logo'          => ['nullable', 'file', 'mimes:svg,png,jpg,jpeg,webp'],
         ]);
 
