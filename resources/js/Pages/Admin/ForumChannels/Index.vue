@@ -108,6 +108,7 @@ export default {
                                     {{ m.l }}
                                 </label>
                             </div>
+                        </div>
                         <div>
                             <label class="text-xs text-gray-500">Création de sujets</label>
                             <div class="mt-1 flex gap-2">
@@ -155,6 +156,7 @@ export default {
                                 {{ m.l }}
                             </label>
                         </div>
+                    </div>
                     <div>
                         <label class="text-xs text-gray-500">Création de sujets</label>
                         <div class="mt-1 flex gap-2">
