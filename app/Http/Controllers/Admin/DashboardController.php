@@ -38,6 +38,13 @@ class DashboardController extends Controller
                 'application_id'=> Application::where('user_id', $r->user_id)->value('id'),
             ]);
 
+        // Forum posts pending moderation
+        $pendingForumPosts = ForumPost::where('status', 'pending')
+            ->with(['user:id,first_name,last_name', 'channel:id,name,slug'])
+            ->latest()
+            ->take(10)
+            ->get();
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers'            => User::count(),
@@ -46,10 +53,12 @@ class DashboardController extends Controller
                 'totalRoles'            => Role::count(),
                 'pendingApplications'   => $pendingApplications->count(),
                 'pendingSteps'          => $pendingSteps->count(),
+                'pendingForumPosts'     => $pendingForumPosts->count(),
                 'acceptedApplications'  => Application::where('status', 'accepted')->count(),
             ],
             'pendingApplications' => $pendingApplications,
             'pendingSteps'        => $pendingSteps,
+            'pendingForumPosts'   => $pendingForumPosts,
             'recentUsers'         => User::latest()->take(5)->get(['id', 'first_name', 'last_name', 'email', 'created_at']),
         ]);
     }

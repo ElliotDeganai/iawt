@@ -70,7 +70,7 @@ class ForumController extends Controller
             'user_id'    => Auth::id(),
             'title'      => $request->title,
             'body'       => $request->body,
-            'status'     => \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft' ? 'approved' : 'pending',
+            'status'     => (Auth::user()->isAdmin() || \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft') ? 'approved' : 'pending',
         ]);
 
         $this->handleAttachments($post, $request);
@@ -95,7 +95,7 @@ class ForumController extends Controller
             'user_id'    => Auth::id(),
             'body'       => $request->body,
             'parent_id'  => $post->id,
-            'status'     => \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft' ? 'approved' : 'pending',
+            'status'     => (Auth::user()->isAdmin() || \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft') ? 'approved' : 'pending',
         ]);
 
         $this->handleAttachments($reply, $request);

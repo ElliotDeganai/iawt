@@ -8,6 +8,7 @@ export default {
         stats: Object,
         pendingApplications: Array,
         pendingSteps: Array,
+        pendingForumPosts: Array,
         recentUsers: Array,
     },
     methods: {
@@ -60,7 +61,7 @@ export default {
             <div class="rounded-2xl bg-white overflow-hidden" :class="pendingApplications.length ? 'border-2 border-gold-400' : 'border border-gray-200'">
                 <div class="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100">
                     <span v-if="pendingApplications.length" class="flex h-6 w-6 items-center justify-center rounded-full bg-gold-500 text-[11px] font-bold text-white">{{ pendingApplications.length }}</span>
-                    <p class="text-sm font-semibold text-gray-800">Candidatures</p>
+                    <p class="text-sm font-semibold text-gray-800">Candidatures à examiner</p>
                     <Link :href="route('admin.applications.index')" class="ml-auto text-xs text-primary-600 hover:underline">Voir tout →</Link>
                 </div>
                 <div class="divide-y divide-gray-50">
@@ -96,6 +97,34 @@ export default {
                 </div>
                 <div v-if="!pendingSteps.length" class="px-5 py-6 text-center">
                     <p class="text-sm text-gray-400">Aucune étape en attente</p>
+                </div>
+            </div>
+
+            <!-- Forum à modérer -->
+            <div class="rounded-2xl bg-white overflow-hidden lg:col-span-2" :class="pendingForumPosts.length ? 'border-2 border-gold-300' : 'border border-gray-200'">
+                <div class="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100">
+                    <span v-if="pendingForumPosts.length" class="flex h-6 w-6 items-center justify-center rounded-full bg-gold-500 text-[11px] font-bold text-white">{{ pendingForumPosts.length }}</span>
+                    <p class="text-sm font-semibold text-gray-800">Forum — publications à modérer</p>
+                    <Link :href="route('admin.forum-moderation.index')" class="ml-auto text-xs text-primary-600 hover:underline">Modération →</Link>
+                </div>
+                <div class="divide-y divide-gray-50">
+                    <Link v-for="fp in pendingForumPosts" :key="fp.id" :href="route('admin.forum-moderation.index')" class="flex items-center gap-3 px-5 py-3 hover:bg-cream/50 transition group">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-xs font-bold text-white">{{ initials(fp.user) }}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <p class="text-sm font-semibold text-gray-800">{{ fp.title || '(Réponse)' }}</p>
+                                <span class="rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-medium text-primary-700">{{ fp.channel?.name }}</span>
+                            </div>
+                            <div class="mt-0.5 text-[11px] text-gray-400 line-clamp-1" v-html="fp.body"></div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">{{ timeAgo(fp.created_at) }}</span>
+                            <p class="mt-1 text-[10px] text-gray-400">{{ fp.user?.first_name }} {{ fp.user?.last_name }}</p>
+                        </div>
+                    </Link>
+                </div>
+                <div v-if="!pendingForumPosts.length" class="px-5 py-6 text-center">
+                    <p class="text-sm text-gray-400">Aucune publication en attente de modération</p>
                 </div>
             </div>
         </div>
