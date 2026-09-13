@@ -19,7 +19,7 @@ class ForumController extends Controller
             ->orderBy('sort_order')
             ->withCount(['posts as topics_count' => fn ($q) => $q->whereNull('parent_id')->approved()])
             ->withCount(['posts as replies_count' => fn ($q) => $q->whereNotNull('parent_id')->approved()])
-            ->with(['latestPost' => fn ($q) => $q->approved()->with('user:id,first_name,last_name,avatar')])
+            ->with(['latestPost.user:id,first_name,last_name,avatar'])
             ->get();
 
         return Inertia::render('Forum/Index', compact('channels'));
@@ -31,7 +31,7 @@ class ForumController extends Controller
 
         $posts = ForumPost::where('channel_id', $channel->id)
             ->whereNull('parent_id')
-            ->where(fn ($q) => $q->approved()->orWhere('user_id', $userId))
+            ->where(fn ($q) => $q->where('status', 'approved')->orWhere('user_id', $userId))
             ->with(['user:id,first_name,last_name,avatar', 'attachments'])
             ->withCount(['approvedReplies as replies_count'])
             ->orderByDesc('is_pinned')
@@ -45,10 +45,17 @@ class ForumController extends Controller
     {
         abort_if($post->status !== 'approved' && $post->user_id !== Auth::id(), 404);
 
+        $userId = Auth::id();
         $post->load([
             'user:id,first_name,last_name,avatar',
             'attachments',
-            'replies' => fn ($q) => $q->with(['user:id,first_name,last_name,avatar', 'attachments'])->oldest(),
+            'replies' => fn ($q) => $q
+                ->where(function ($r) use ($userId) {
+                    $r->where('status', 'approved');
+                    if ($userId) $r->orWhere('user_id', $userId);
+                })
+                ->with(['user:id,first_name,last_name,avatar', 'attachments'])
+                ->latest(),
         ]);
 
         return Inertia::render('Forum/Post', compact('channel', 'post'));
@@ -65,12 +72,18 @@ class ForumController extends Controller
             'links.*' => ['url'],
         ]);
 
+        if ($channel->topic_creation === 'admin_only' && !Auth::user()->isAdmin()) {
+            return Redirect::back()->with('error', 'Seuls les administrateurs peuvent créer des sujets dans cet espace.');
+        }
+
+        $autoApprove = Auth::user()->isAdmin() || $channel->effectiveModerationMode() === 'soft';
+
         $post = ForumPost::create([
             'channel_id' => $channel->id,
             'user_id'    => Auth::id(),
             'title'      => $request->title,
             'body'       => $request->body,
-            'status'     => (Auth::user()->isAdmin() || \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft') ? 'approved' : 'pending',
+            'status'     => $autoApprove ? 'approved' : 'pending',
         ]);
 
         $this->handleAttachments($post, $request);
@@ -90,12 +103,14 @@ class ForumController extends Controller
             'attachments.*' => ['file', 'max:10240'],
         ]);
 
+        $autoApprove = Auth::user()->isAdmin() || $channel->effectiveModerationMode() === 'soft';
+
         $reply = ForumPost::create([
             'channel_id' => $channel->id,
             'user_id'    => Auth::id(),
             'body'       => $request->body,
             'parent_id'  => $post->id,
-            'status'     => (Auth::user()->isAdmin() || \App\Models\Setting::get('forum_moderation_mode', 'strict') === 'soft') ? 'approved' : 'pending',
+            'status'     => $autoApprove ? 'approved' : 'pending',
         ]);
 
         $this->handleAttachments($reply, $request);

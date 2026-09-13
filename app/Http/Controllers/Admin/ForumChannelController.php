@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ForumChannel;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -15,6 +16,7 @@ class ForumChannelController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/ForumChannels/Index', [
+            'globalMode' => Setting::get('forum_moderation_mode', 'strict'),
             'channels' => ForumChannel::orderBy('sort_order')
                 ->withCount(['posts as topics_count' => fn ($q) => $q->whereNull('parent_id')])
                 ->get(),
@@ -28,7 +30,11 @@ class ForumChannelController extends Controller
             'description' => ['nullable', 'string'],
             'sort_order'  => ['nullable', 'integer'],
             'is_active'   => ['boolean'],
+            'moderation_mode' => ['nullable', 'in:inherit,strict,soft'],
+            'topic_creation'  => ['nullable', 'in:everyone,admin_only'],
         ]);
+        $data['moderation_mode'] = $data['moderation_mode'] ?? 'inherit';
+        $data['topic_creation'] = $data['topic_creation'] ?? 'everyone';
         $data['slug'] = Str::slug($data['name']);
         $data['sort_order'] = $data['sort_order'] ?? ForumChannel::max('sort_order') + 1;
 
@@ -43,7 +49,11 @@ class ForumChannelController extends Controller
             'description' => ['nullable', 'string'],
             'sort_order'  => ['nullable', 'integer'],
             'is_active'   => ['boolean'],
+            'moderation_mode' => ['nullable', 'in:inherit,strict,soft'],
+            'topic_creation'  => ['nullable', 'in:everyone,admin_only'],
         ]);
+        $data['moderation_mode'] = $data['moderation_mode'] ?? 'inherit';
+        $data['topic_creation'] = $data['topic_creation'] ?? 'everyone';
         $data['slug'] = Str::slug($data['name']);
 
         $forumChannel->update($data);

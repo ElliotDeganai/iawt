@@ -56,7 +56,7 @@ export default {
                 <p class="text-sm text-green-700">{{ $page.props.flash.success }}</p>
             </div>
             <!-- New post button -->
-            <button v-if="!showForm && $page.props.auth?.user" type="button" class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 transition" @click="showForm = true">
+            <button v-if="!showForm && $page.props.auth?.user && canCreateTopic" type="button" class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 transition" @click="showForm = true">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
                 Nouveau sujet
             </button>

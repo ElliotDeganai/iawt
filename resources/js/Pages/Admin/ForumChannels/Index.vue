@@ -4,20 +4,28 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 
 export default {
     components: { AdminLayout, Head },
-    props: { channels: Array },
+    props: { channels: Array, globalMode: String },
     data() {
         return {
             editing: null,
-            form: useForm({ name: '', description: '', sort_order: '', is_active: true }),
+            form: useForm({ name: '', description: '', sort_order: '', is_active: true, moderation_mode: 'inherit', topic_creation: 'everyone' }),
         };
     },
     methods: {
+        modeLabel(m) { return { inherit: 'Global', strict: 'Stricte', soft: 'Souple' }[m] || m; },
+        modeColor(m) { return { inherit: 'bg-gray-100 text-gray-600', strict: 'bg-primary-50 text-primary-700', soft: 'bg-green-50 text-green-700' }[m] || ''; },
+        effectiveLabel(ch) {
+            if (ch.moderation_mode !== 'inherit') return this.modeLabel(ch.moderation_mode);
+            return this.modeLabel(this.globalMode || 'strict') + ' (global)';
+        },
         startEdit(ch) {
             this.editing = ch.id;
             this.form.name = ch.name;
             this.form.description = ch.description || '';
             this.form.sort_order = ch.sort_order;
             this.form.is_active = ch.is_active;
+            this.form.moderation_mode = ch.moderation_mode || 'inherit';
+            this.form.topic_creation = ch.topic_creation || 'everyone';
         },
         cancelEdit() { this.editing = null; this.form.reset(); },
         saveNew() {
@@ -48,6 +56,11 @@ export default {
         </template>
 
         <div class="max-w-3xl">
+            <!-- Info global mode -->
+            <div class="mb-4 rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-500">
+                Mode de modération global : <span class="font-semibold text-gray-700">{{ modeLabel(globalMode || 'strict') }}</span> — chaque espace peut le remplacer individuellement.
+            </div>
+
             <div class="rounded-lg bg-white shadow overflow-hidden mb-6">
                 <div v-if="!channels.length" class="px-6 py-8 text-center text-sm text-gray-400">Aucun espace.</div>
                 <div v-for="ch in channels" :key="ch.id" class="border-b border-gray-100 last:border-0">
@@ -59,6 +72,8 @@ export default {
                             <p v-if="ch.description" class="text-xs text-gray-400 truncate">{{ ch.description }}</p>
                         </div>
                         <span class="rounded-full px-2 py-0.5 text-[10px] font-medium" :class="ch.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'">{{ ch.is_active ? 'Actif' : 'Inactif' }}</span>
+                        <span class="rounded-full px-2 py-0.5 text-[10px] font-medium" :class="modeColor(ch.moderation_mode)">{{ effectiveLabel(ch) }}</span>
+                        <span class="rounded-full px-2 py-0.5 text-[10px] font-medium" :class="ch.topic_creation === 'admin_only' ? 'bg-amber-50 text-amber-700' : 'bg-gray-50 text-gray-500'">{{ ch.topic_creation === 'admin_only' ? 'Admin seul' : 'Tous' }}</span>
                         <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">{{ ch.topics_count }} sujet{{ ch.topics_count > 1 ? 's' : '' }}</span>
                         <button type="button" class="text-xs text-primary-600 hover:underline" @click="startEdit(ch)">Modifier</button>
                         <button type="button" class="text-xs text-red-600 hover:underline" @click="destroy(ch)">Supprimer</button>
@@ -85,6 +100,21 @@ export default {
                         <div>
                             <label class="text-xs text-gray-500">Description</label>
                             <input v-model="form.description" class="mt-1 w-full rounded-md border-gray-300 text-sm" />
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500">Modération</label>
+                            <div class="mt-1 flex gap-2">
+                                <label v-for="m in [{v:'inherit',l:'Réglage global'},{v:'strict',l:'Stricte'},{v:'soft',l:'Souple'}]" :key="m.v" class="flex-1 cursor-pointer rounded-lg border-2 px-3 py-2 text-center text-xs transition" :class="form.moderation_mode === m.v ? 'border-primary-600 bg-primary-50 font-semibold text-primary-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="form.moderation_mode = m.v">
+                                    {{ m.l }}
+                                </label>
+                            </div>
+                        <div>
+                            <label class="text-xs text-gray-500">Création de sujets</label>
+                            <div class="mt-1 flex gap-2">
+                                <label v-for="t in [{v:'everyone',l:'Tous les membres'},{v:'admin_only',l:'Admin uniquement'}]" :key="t.v" class="flex-1 cursor-pointer rounded-lg border-2 px-3 py-2 text-center text-xs transition" :class="form.topic_creation === t.v ? 'border-primary-600 bg-primary-50 font-semibold text-primary-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="form.topic_creation = t.v">
+                                    {{ t.l }}
+                                </label>
+                            </div>
                         </div>
                         <div class="flex gap-2">
                             <button type="submit" :disabled="form.processing" class="rounded-md bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary-700">Enregistrer</button>
@@ -117,6 +147,21 @@ export default {
                     <div>
                         <label class="text-xs text-gray-500">Description</label>
                         <input v-model="form.description" class="mt-1 w-full rounded-md border-gray-300 text-sm" placeholder="Courte description de l'espace" />
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500">Modération</label>
+                        <div class="mt-1 flex gap-2">
+                            <label v-for="m in [{v:'inherit',l:'Réglage global'},{v:'strict',l:'Stricte'},{v:'soft',l:'Souple'}]" :key="m.v" class="flex-1 cursor-pointer rounded-lg border-2 px-3 py-2 text-center text-xs transition" :class="form.moderation_mode === m.v ? 'border-primary-600 bg-primary-50 font-semibold text-primary-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="form.moderation_mode = m.v">
+                                {{ m.l }}
+                            </label>
+                        </div>
+                    <div>
+                        <label class="text-xs text-gray-500">Création de sujets</label>
+                        <div class="mt-1 flex gap-2">
+                            <label v-for="t in [{v:'everyone',l:'Tous les membres'},{v:'admin_only',l:'Admin uniquement'}]" :key="t.v" class="flex-1 cursor-pointer rounded-lg border-2 px-3 py-2 text-center text-xs transition" :class="form.topic_creation === t.v ? 'border-primary-600 bg-primary-50 font-semibold text-primary-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'" @click="form.topic_creation = t.v">
+                                {{ t.l }}
+                            </label>
+                        </div>
                     </div>
                     <button type="submit" :disabled="form.processing" class="rounded-md bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary-700">Créer</button>
                 </form>
