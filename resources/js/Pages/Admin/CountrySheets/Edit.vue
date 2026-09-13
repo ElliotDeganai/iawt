@@ -37,7 +37,7 @@ export default {
                 company_steps:    s.company_steps ?? [],
                 fees:             s.fees ?? '',
                 sector_auth:      s.sector_auth ?? '',
-                is_published:     s.is_published ?? true,
+                is_published:     s.is_published ?? false,
             }),
         };
     },
@@ -115,7 +115,7 @@ export default {
                 <div><InputLabel value="Titre de la fiche" /><TextInput v-model="form.title" class="mt-1 w-full" required /><InputError class="mt-1" :message="form.errors.title" /></div>
                 <div><InputLabel value="Introduction" /><textarea v-model="form.intro" rows="3" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
                 <div><InputLabel value="Avertissement" /><textarea v-model="form.warning" rows="2" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
-                <label class="flex items-center gap-2"><Checkbox v-model:checked="form.is_published" /><span class="text-sm text-gray-700">Publié</span></label>
+                
             </div>
 
             <!-- Carte des acteurs -->
@@ -179,6 +179,21 @@ export default {
                 <h2 class="font-medium text-gray-800">Frais & Autorisations</h2>
                 <div><InputLabel value="Frais de création" /><textarea v-model="form.fees" rows="2" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
                 <div><InputLabel value="Autorisations sectorielles" /><textarea v-model="form.sector_auth" rows="3" class="mt-1 w-full rounded-md border-gray-300 text-sm" /></div>
+            </div>
+
+            <!-- Statut de publication -->
+            <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="form.is_published ? 'border-green-400 bg-green-50' : 'border-amber-300 bg-amber-50'">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full" :class="form.is_published ? 'bg-green-500' : 'bg-amber-400'">
+                    <svg v-if="form.is_published" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg v-else class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold" :class="form.is_published ? 'text-green-800' : 'text-amber-800'">{{ form.is_published ? 'Publiée' : 'Brouillon' }}</p>
+                    <p class="text-[10px]" :class="form.is_published ? 'text-green-600' : 'text-amber-600'">{{ form.is_published ? 'Visible dans le parcours des candidats' : 'Non visible — en cours de rédaction' }}</p>
+                </div>
+                <button type="button" class="rounded-full px-3 py-1.5 text-xs font-semibold transition" :class="form.is_published ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-green-100 text-green-700 hover:bg-green-200'" @click="form.is_published = !form.is_published">
+                    {{ form.is_published ? 'Repasser en brouillon' : 'Publier' }}
+                </button>
             </div>
 
             <div class="flex items-center gap-3">
