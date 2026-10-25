@@ -222,24 +222,6 @@ export default {
                     </div>
                 </div>
             </transition>
-
-            <!-- Légende -->
-            <div class="mt-4 flex flex-wrap items-center gap-4">
-                <div v-for="cat in categories" :key="cat.id" class="flex items-center gap-1.5">
-                    <span class="h-3 w-3 rounded-sm border-l-2" :style="{ borderColor: cat.color, backgroundColor: cat.color + '12' }"></span>
-                    <span class="text-xs text-gray-500">{{ cat.name }}</span>
-                </div>
-                <div v-if="!categories.length" class="flex items-center gap-4">
-                    <div class="flex items-center gap-1.5">
-                        <span class="h-3 w-3 rounded-sm border-l-2 border-primary-600 bg-primary-50"></span>
-                        <span class="text-xs text-gray-500">Événement standard</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="h-3 w-3 rounded-sm border-l-2 border-gold-500 bg-gold-50"></span>
-                        <span class="text-xs text-gray-500">Événement vedette</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </PublicLayout>
 </template>
